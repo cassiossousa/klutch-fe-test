@@ -41,11 +41,14 @@ describe('utils', () => {
     it.each`
       description                   | daysAgo | hoursAgo | minutesAgo | secondsAgo | expected
       ${'within the last minute'}   | ${0}    | ${0}     | ${0}       | ${30}      | ${'Just now'}
-      ${'exactly 1 minute ago'}     | ${0}    | ${0}     | ${1}       | ${0}       | ${'Just now'}
-      ${'between 1-60 minutes ago'} | ${0}    | ${0}     | ${30}      | ${0}       | ${'30 minutes ago'}
-      ${'exactly 1 hour ago'}       | ${0}    | ${1}     | ${0}       | ${0}       | ${'Just now'}
-      ${'between 1-24 hours ago'}   | ${0}    | ${12}    | ${0}       | ${0}       | ${'12 hours ago'}
-      ${'exactly 1 day ago'}        | ${1}    | ${0}     | ${0}       | ${0}       | ${'Just now'}
+      ${'exactly 1 minute ago'}     | ${0}    | ${0}     | ${1}       | ${0}       | ${'1 minute ago'}
+      ${'between 1-2 minutes ago'}  | ${0}    | ${0}     | ${0}       | ${70}      | ${'1 minute ago'}
+      ${'between 2-60 minutes ago'} | ${0}    | ${0}     | ${30}      | ${0}       | ${'30 minutes ago'}
+      ${'exactly 1 hour ago'}       | ${0}    | ${1}     | ${0}       | ${0}       | ${'1 hour ago'}
+      ${'between 1-2 hours ago'}    | ${0}    | ${0}     | ${70}      | ${0}       | ${'1 hour ago'}
+      ${'between 2-24 hours ago'}   | ${0}    | ${12}    | ${0}       | ${0}       | ${'12 hours ago'}
+      ${'exactly 1 day ago'}        | ${1}    | ${0}     | ${0}       | ${0}       | ${'1 day ago'}
+      ${'between 1-2 days ago'}     | ${0}    | ${31}    | ${0}       | ${0}       | ${'1 day ago'}
       ${'5 days ago'}               | ${5}    | ${0}     | ${0}       | ${0}       | ${'5 days ago'}
     `('returns $expected for timestamps $description',
       ({ daysAgo, hoursAgo, minutesAgo, secondsAgo, expected }) => {

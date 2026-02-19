@@ -12,16 +12,20 @@ export function relativeTime(timestamp: number): string {
   const dt = DateTime.fromMillis(timestamp)
   const now = DateTime.now()
   const diff = now.diff(dt, ['days', 'hours', 'minutes'])
-  
-  if (diff.days > 1) {
-    return `${Math.floor(diff.days)} days ago`
-  } else if (diff.hours > 1) {
-    return `${Math.floor(diff.hours)} hours ago`
-  } else if (diff.minutes > 1) {
-    return `${Math.floor(diff.minutes)} minutes ago`
-  } else {
-    return 'Just now'
-  }
+
+  const daysFloor = Math.floor(diff.days)
+  if (daysFloor > 1)   return `${daysFloor} days ago`
+  if (daysFloor === 1) return `1 day ago`
+
+  const hoursFloor = Math.floor(diff.hours)
+  if (hoursFloor > 1)   return `${hoursFloor} hours ago`
+  if (hoursFloor === 1) return `1 hour ago`
+
+  const minutesFloor = Math.floor(diff.minutes)
+  if (minutesFloor > 1)   return `${minutesFloor} minutes ago`
+  if (minutesFloor === 1) return `1 minute ago`
+
+  return 'Just now'
 }
 
 export function formatDisplayDate(dateString: string | null): string {
