@@ -154,7 +154,7 @@
     <Td style="padding: 0.5rem;">
       {#if task.tags && task.tags.length > 0}
         <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
-          {#each task.tags.slice(0, 2) as tag}
+          {#each task.tags.slice(0, 2) as tag, i (tag + `-${i}`)}
             <Pill {tag} />
           {/each}
           {#if task.tags.length > 2}

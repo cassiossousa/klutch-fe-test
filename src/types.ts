@@ -92,6 +92,7 @@ export interface TaskTableColumnConfig {
 }
 
 export interface UpdateTaskPayload {
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   [key: string]: any
 }
 
