@@ -1,8 +1,8 @@
-import type {ListableTask, UpdateTaskPayload} from './types'
-import {ValidationError} from './types'
+import type { ListableTask, UpdateTaskPayload } from './types'
+import { ValidationError } from './types'
 
 // Simulates network latency
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 // Simulates occasional network errors (10% failure rate)
 const shouldFail = () => Math.random() < 0.1
@@ -11,10 +11,13 @@ export class MockAPI {
   private tasks: Map<string, ListableTask> = new Map()
 
   constructor(initialTasks: ListableTask[]) {
-    initialTasks.forEach(task => this.tasks.set(task.id, task))
+    initialTasks.forEach((task) => this.tasks.set(task.id, task))
   }
 
-  async updateTask(taskId: string, payload: UpdateTaskPayload): Promise<ListableTask> {
+  async updateTask(
+    taskId: string,
+    payload: UpdateTaskPayload
+  ): Promise<ListableTask> {
     // Simulate network delay (200-600ms)
     await delay(200 + Math.random() * 400)
 
@@ -37,7 +40,7 @@ export class MockAPI {
     const updatedTask: ListableTask = {
       ...task,
       ...payload,
-      updatedAt: Date.now(),
+      updatedAt: Date.now()
     }
 
     this.tasks.set(taskId, updatedTask)

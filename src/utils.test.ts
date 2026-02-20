@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { formatDate, formatDateTime, relativeTime, formatDisplayDate } from './utils'
+import {
+  formatDate,
+  formatDateTime,
+  relativeTime,
+  formatDisplayDate
+} from './utils'
 import { DateTime } from 'luxon'
 
 describe('utils', () => {
@@ -10,7 +15,7 @@ describe('utils', () => {
       ${'2024-01-01T00:00:00'} | ${'01/01/2024'}
       ${'2000-12-31T23:59:59'} | ${'12/31/2000'}
       ${'2023-05-07T14:20:00'} | ${'05/07/2023'}
-    `('formats $timestamp to $expected', ({ timestampStr, expected }) => { 
+    `('formats $timestamp to $expected', ({ timestampStr, expected }) => {
       const timestamp = DateTime.fromISO(timestampStr).toMillis()
       expect(formatDate(timestamp)).toBe(expected)
     })
@@ -23,7 +28,7 @@ describe('utils', () => {
       ${'2025-03-15T09:15:00'} | ${'03/15/2025 9:15 AM'}
       ${'2025-03-15T12:00:00'} | ${'03/15/2025 12:00 PM'}
       ${'2025-03-15T14:30:00'} | ${'03/15/2025 2:30 PM'}
-    `('formats $timestamp to $expected', ({ timestampStr, expected }) => { 
+    `('formats $timestamp to $expected', ({ timestampStr, expected }) => {
       const timestamp = DateTime.fromISO(timestampStr).toMillis()
       expect(formatDateTime(timestamp)).toBe(expected)
     })
@@ -50,14 +55,17 @@ describe('utils', () => {
       ${'exactly 1 day ago'}        | ${1}    | ${0}     | ${0}       | ${0}       | ${'1 day ago'}
       ${'between 1-2 days ago'}     | ${0}    | ${31}    | ${0}       | ${0}       | ${'1 day ago'}
       ${'5 days ago'}               | ${5}    | ${0}     | ${0}       | ${0}       | ${'5 days ago'}
-    `('returns $expected for timestamps $description',
+    `(
+      'returns $expected for timestamps $description',
       ({ daysAgo, hoursAgo, minutesAgo, secondsAgo, expected }) => {
-        const timestamp = now.minus({
-          days: daysAgo,
-          hours: hoursAgo,
-          minutes: minutesAgo,
-          seconds: secondsAgo
-        }).toMillis()
+        const timestamp = now
+          .minus({
+            days: daysAgo,
+            hours: hoursAgo,
+            minutes: minutesAgo,
+            seconds: secondsAgo
+          })
+          .toMillis()
         expect(relativeTime(timestamp)).toBe(expected)
       }
     )
@@ -72,7 +80,8 @@ describe('utils', () => {
       ${'a malformed date string'}     | ${'2025-13-45'}          | ${'—'}                  | ${'—'}
       ${'a valid ISO date string'}     | ${'2025-03-15'}          | ${'a DD/MM/YYY string'} | ${'03/15/2025'}
       ${'a valid ISO datetime string'} | ${'2025-03-15T14:30:00'} | ${'a DD/MM/YYY string'} | ${'03/15/2025'}
-    `('returns $expected when input is $inputDescription',
+    `(
+      'returns $expected when input is $inputDescription',
       ({ input, expected }) => {
         expect(formatDisplayDate(input)).toBe(expected)
       }

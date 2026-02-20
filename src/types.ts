@@ -1,6 +1,11 @@
 // Simplified type definitions from the real Punch codebase
 
-export type TaskStatus = 'Open' | 'InProgress' | 'InReview' | 'Completed' | 'Canceled'
+export type TaskStatus =
+  | 'Open'
+  | 'InProgress'
+  | 'InReview'
+  | 'Completed'
+  | 'Canceled'
 export type TaskType = 'Todo' | 'ScheduledTask' | 'PunchItem' | 'WarrantyItem'
 export type TaskPriority = 'Normal' | 'Urgent'
 
@@ -30,23 +35,23 @@ export interface ListableTask {
   status: TaskStatus
   taskType: TaskType
   priority: TaskPriority
-  dueDate: string | null  // ISO date string
+  dueDate: string | null // ISO date string
   startedAt: number | null
   endedAt: number | null
   createdAt: number
   updatedAt: number
-  
+
   // Photo/media display
   photoCount: number
   featuredPhotoUrl: string | null
-  
+
   // Tags
   tags: Tag[]
-  
+
   // Comments/updates
   updatesCount: number
   lastCommentCreatedAt: number | null
-  
+
   // Assignees (flattened for list view)
   coordinatorId: string | null
   coordinatorName: string | null
@@ -54,18 +59,18 @@ export interface ListableTask {
   assignedToId: string | null
   assignedToName: string | null
   assignedToInitials: string | null
-  
+
   // Project (flattened)
   projectId: string | null
   projectName: string | null
-  
+
   // Work order (flattened)
   workOrderId: string | null
   workOrderNumber: string | null
-  
+
   // Area (flattened)
   areaName: string | null
-  
+
   // Task number
   number: string | null
 }
@@ -107,7 +112,9 @@ export class ValidationError extends Error {
 
   static async handle(response: Response): Promise<void> {
     if (!response.ok) {
-      const json = await response.json().catch(() => ({errors: ['Unknown error']}))
+      const json = await response
+        .json()
+        .catch(() => ({ errors: ['Unknown error'] }))
       throw new ValidationError(json.errors || ['Unknown error'])
     }
   }

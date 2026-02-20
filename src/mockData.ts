@@ -1,4 +1,4 @@
-import type {ListableTask} from './types'
+import type { ListableTask } from './types'
 
 const now = new Date()
 const fiveDaysFromNow = new Date(now.getTime() + 5 * 24 * 60 * 60 * 1000)
@@ -22,8 +22,8 @@ export const MOCK_TASKS: ListableTask[] = [
     photoCount: 0,
     featuredPhotoUrl: null,
     tags: [
-      {id: 'tag-1', name: 'Mechanical', backgroundColor: '#3b82f6'},
-      {id: 'tag-2', name: 'Priority', backgroundColor: '#f59e0b'},
+      { id: 'tag-1', name: 'Mechanical', backgroundColor: '#3b82f6' },
+      { id: 'tag-2', name: 'Priority', backgroundColor: '#f59e0b' }
     ],
     updatesCount: 3,
     lastCommentCreatedAt: Date.now() - 2 * 60 * 60 * 1000,
@@ -38,7 +38,7 @@ export const MOCK_TASKS: ListableTask[] = [
     workOrderId: 'wo-1',
     workOrderNumber: 'WO-2024-001',
     areaName: 'Mechanical',
-    number: 'T-123',
+    number: 'T-123'
   },
   {
     id: 'task-2',
@@ -53,7 +53,7 @@ export const MOCK_TASKS: ListableTask[] = [
     updatedAt: Date.now() - 30 * 60 * 1000,
     photoCount: 0,
     featuredPhotoUrl: null,
-    tags: [{id: 'tag-3', name: 'Urgent', backgroundColor: '#ef4444'}],
+    tags: [{ id: 'tag-3', name: 'Urgent', backgroundColor: '#ef4444' }],
     updatesCount: 0,
     lastCommentCreatedAt: null,
     coordinatorId: null,
@@ -67,7 +67,7 @@ export const MOCK_TASKS: ListableTask[] = [
     workOrderId: null,
     workOrderNumber: null,
     areaName: 'Interior',
-    number: 'P-456',
+    number: 'P-456'
   },
   {
     id: 'task-3',
@@ -82,7 +82,7 @@ export const MOCK_TASKS: ListableTask[] = [
     updatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
     photoCount: 0,
     featuredPhotoUrl: null,
-    tags: [{id: 'tag-4', name: 'Electrical', backgroundColor: '#8b5cf6'}],
+    tags: [{ id: 'tag-4', name: 'Electrical', backgroundColor: '#8b5cf6' }],
     updatesCount: 5,
     lastCommentCreatedAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
     coordinatorId: 'user-3',
@@ -96,7 +96,7 @@ export const MOCK_TASKS: ListableTask[] = [
     workOrderId: null,
     workOrderNumber: null,
     areaName: 'Electrical',
-    number: 'T-789',
+    number: 'T-789'
   },
   {
     id: 'task-4',
@@ -125,7 +125,7 @@ export const MOCK_TASKS: ListableTask[] = [
     workOrderId: null,
     workOrderNumber: null,
     areaName: 'Exterior',
-    number: 'T-790',
+    number: 'T-790'
   },
   {
     id: 'task-5',
@@ -141,8 +141,8 @@ export const MOCK_TASKS: ListableTask[] = [
     photoCount: 0,
     featuredPhotoUrl: null,
     tags: [
-      {id: 'tag-3', name: 'Urgent', backgroundColor: '#ef4444'},
-      {id: 'tag-5', name: 'Safety', backgroundColor: '#dc2626'},
+      { id: 'tag-3', name: 'Urgent', backgroundColor: '#ef4444' },
+      { id: 'tag-5', name: 'Safety', backgroundColor: '#dc2626' }
     ],
     updatesCount: 2,
     lastCommentCreatedAt: Date.now() - 1 * 60 * 60 * 1000,
@@ -157,6 +157,6 @@ export const MOCK_TASKS: ListableTask[] = [
     workOrderId: 'wo-2',
     workOrderNumber: 'WO-2024-002',
     areaName: 'Exterior',
-    number: 'P-457',
-  },
+    number: 'P-457'
+  }
 ]
