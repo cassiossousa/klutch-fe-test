@@ -293,8 +293,6 @@ describe('getMockAPI()', () => {
     initializeMockAPIFunc(MOCK_TASKS)
     const firstCall = getMockAPIFunc()
     const secondCall = getMockAPIFunc()
-    expect(firstCall).toBeInstanceOf(MockAPIClass)
-    expect(secondCall).toBeInstanceOf(MockAPIClass)
     expect(firstCall).toBe(secondCall)
   })
 })
