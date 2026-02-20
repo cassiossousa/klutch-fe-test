@@ -229,74 +229,72 @@ describe('MockAPI', () => {
   })
 })
 
-describe('Singleton pattern', () => {
-  describe('initializeMockAPI()', () => {
-    it('creates MockAPI instance with provided tasks', () => {
-      initializeMockAPI(MOCK_TASKS)
-      const api = getMockAPI()
-
-      expect(api).toBeInstanceOf(MockAPI)
-      expect(api.getAllTasks()).toHaveLength(5)
-    })
-
-    it('replaces previous instance when called multiple times', () => {
-      initializeMockAPI([MOCK_TASKS[0]])
-      const firstApi = getMockAPI()
-
-      initializeMockAPI(MOCK_TASKS)
-      const secondApi = getMockAPI()
-
-      expect(firstApi).not.toBe(secondApi)
-      expect(secondApi.getAllTasks()).toHaveLength(5)
-    })
-
-    it('initializes with empty array', () => {
-      initializeMockAPI([])
-      const api = getMockAPI()
-
-      expect(api.getAllTasks()).toEqual([])
-    })
+describe('initializeMockAPI()', () => {
+  it('creates MockAPI instance with the provided tasks', () => {
+    initializeMockAPI(MOCK_TASKS)
+    const api = getMockAPI()
+    expect(api).toBeInstanceOf(MockAPI)
+    expect(api.getAllTasks()).toHaveLength(MOCK_TASKS.length)
   })
 
-  describe('getMockAPI()', () => {
-    let getMockAPIFunc: () => MockAPI,
-        initializeMockAPIFunc: (tasks: ListableTask[]) => void;
+  it('replaces previous MockAPI instance when called multiple times', () => {
+    initializeMockAPI([MOCK_TASKS[0]])
+    const firstApi = getMockAPI()
+
+    initializeMockAPI(MOCK_TASKS)
+    const secondApi = getMockAPI()
+
+    expect(firstApi).not.toBe(secondApi)  
+    expect(firstApi.getAllTasks()).toHaveLength(1)
+    expect(secondApi.getAllTasks()).toHaveLength(MOCK_TASKS.length)
+  })
+})
+
+
+describe('getMockAPI()', () => {
+  let getMockAPIFunc: () => MockAPI,
+      initializeMockAPIFunc: (tasks: ListableTask[]) => void,
+      MockAPIClass: typeof MockAPI;
+
+  beforeEach(async () => {
+    // If we refer to getMockAPI and initializeMockAPI from the top import,
+    // their singleton instance might have already been initialized by the time
+    // we get to these tests, so we must re-import everything in a fresh module state
+    // where we're certain the instance hasn't been initialized.
+    vi.resetModules()
   
-    beforeEach(async () => {
-      // Reset modules to clear the singleton state
-      vi.resetModules()
+    // As it's important for us to validate functions and object types,
+    // we must re-import everything we need in our tests here.
+    const {
+      getMockAPI: freshGetMockAPI,
+      initializeMockAPI: freshInitializeMockAPI,
+      MockAPI: FreshMockAPIClass
+    } = await import('./mockApi')
 
-      // If we refer to getMockAPI and initializeMockAPI from the top import,
-      // their singleton instance might have already been initialized by the time
-      // we get to these tests, so we must re-import them in a fresh module state
-      // where we're certain the instance hasn't been initialized.
-      const {
-        getMockAPI: freshGetMockAPI,
-        initializeMockAPI: freshInitializeMockAPI
-      } = await import('./mockApi')
+    getMockAPIFunc = freshGetMockAPI;
+    initializeMockAPIFunc = freshInitializeMockAPI;
+    MockAPIClass = FreshMockAPIClass;
+  });
 
-      getMockAPIFunc = freshGetMockAPI;
-      initializeMockAPIFunc = freshInitializeMockAPI;
-    });
+  it('throws error when getMockAPI is called before initialization', async () => {
+    expect(() => {
+      getMockAPIFunc()
+    }).toThrow('Mock API not initialized. Call initializeMockAPI() first.')
+  })
 
-    it('throws error when getMockAPI is called before initialization', async () => {
-      expect(() => {
-        getMockAPIFunc()
-      }).toThrow('Mock API not initialized. Call initializeMockAPI() first.')
-    })
+  it('returns MockAPI instance after initialization', () => {
+    initializeMockAPIFunc(MOCK_TASKS)
+    const api = getMockAPIFunc()
+    expect(api).toBeInstanceOf(MockAPIClass)
+    expect(api.getAllTasks()).toEqual(MOCK_TASKS)
+  })
 
-    it('returns API instance after initialization', () => {
-      initializeMockAPIFunc(MOCK_TASKS)
-      const api = getMockAPIFunc()
-      expect(api).toBeDefined()
-      expect(api.getAllTasks()).toEqual(MOCK_TASKS)
-    })
-
-    it('returns the same API instance across multiple calls', () => {
-      initializeMockAPIFunc(MOCK_TASKS)
-      const firstCall = getMockAPIFunc()
-      const secondCall = getMockAPIFunc()
-      expect(firstCall).toBe(secondCall)
-    })
+  it('returns the same MockAPI instance across multiple calls', () => {
+    initializeMockAPIFunc(MOCK_TASKS)
+    const firstCall = getMockAPIFunc()
+    const secondCall = getMockAPIFunc()
+    expect(firstCall).toBeInstanceOf(MockAPIClass)
+    expect(secondCall).toBeInstanceOf(MockAPIClass)
+    expect(firstCall).toBe(secondCall)
   })
 })
