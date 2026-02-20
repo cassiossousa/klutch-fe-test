@@ -25,3 +25,6 @@ dist-ssr
 
 # Coverage files (v8)
 coverage/
+
+# Vite timestamps
+vite.config.ts.timestamp-*
