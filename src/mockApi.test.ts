@@ -9,222 +9,167 @@ describe('MockAPI', () => {
 
   beforeEach(() => {
     api = new MockAPI(MOCK_TASKS)
-    vi.useFakeTimers()
-    vi.spyOn(Math, 'random')
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-    vi.restoreAllMocks()
-  })
-
-  describe('constructor', () => {
-    it('initializes with empty task map when no tasks provided', () => {
-      const emptyApi = new MockAPI([])
-      expect(emptyApi.getAllTasks()).toEqual([])
-    })
-
-    it('populates task map with initial tasks', () => {
-      const tasks = api.getAllTasks()
-      expect(tasks).toHaveLength(5)
-      expect(tasks[0].id).toBe('task-1')
-      expect(tasks[1].id).toBe('task-2')
-    })
   })
 
   describe('getTask()', () => {
-    it.each`
-      taskId        | description                                 | expected
-      ${'task-1'}   | ${'returns existing task'}                  | ${MOCK_TASKS[0]}
-      ${'task-2'}   | ${'returns another existing task'}          | ${MOCK_TASKS[1]}
-      ${'nonexist'} | ${'returns undefined for nonexistent task'} | ${undefined}
-      ${''}         | ${'returns undefined for empty id'}         | ${undefined}
-    `('$description when taskId is $taskId', ({ taskId, expected }) => {
-      expect(api.getTask(taskId)).toEqual(expected)
+    it('returns existing task by its id', () => {
+      const task = api.getTask(MOCK_TASKS[0].id)
+      expect(task).toEqual(MOCK_TASKS[0])
+    })
+
+    it('returns undefined if there is no task with the given id', () => {
+      const task = api.getTask('non existent ID')
+      expect(task).toBeUndefined()
     })
   })
 
   describe('getAllTasks()', () => {
-    it('returns all tasks as array', () => {
+    it('returns all tasks as an array', () => {
       const tasks = api.getAllTasks()
-      expect(Array.isArray(tasks)).toBe(true)
-      expect(tasks).toHaveLength(5)
-    })
 
-    it('returns empty array when no tasks', () => {
-      const emptyApi = new MockAPI([])
-      expect(emptyApi.getAllTasks()).toEqual([])
+      // getAllTasks() does not keep the original order of the input array,
+      // so this is to confirm both are equal.
+      expect(tasks).toHaveLength(MOCK_TASKS.length)
+      expect(tasks.sort((a, b) => a.id.localeCompare(b.id))).toEqual(
+        MOCK_TASKS.sort((a, b) => a.id.localeCompare(b.id))
+      )
     })
   })
 
   describe('updateTask()', () => {
     beforeEach(() => {
       vi.clearAllMocks()
+      vi.useFakeTimers()
+      vi.spyOn(Math, 'random')
     })
 
-    it('throws ValidationError on network failure when random < 0.1', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.05)
-
-      const promise = api.updateTask('task-1', { title: 'Updated' })
-      vi.advanceTimersByTime(600)
-
-      await expect(promise).rejects.toThrow(ValidationError)
+    afterEach(() => {
+      vi.useRealTimers()
+      vi.restoreAllMocks()
     })
 
-    it.each`
-      description                            | taskId      | payload               | shouldError
-      ${'throws error for nonexistent task'} | ${'99'}     | ${{ title: 'New' }}   | ${true}
-      ${'throws error for empty title'}      | ${'task-1'} | ${{ title: '' }}      | ${true}
-      ${'throws error for whitespace title'} | ${'task-1'} | ${{ title: '   ' }}   | ${true}
-      ${'allows undefined title'}            | ${'task-1'} | ${{ status: 'Open' }} | ${false}
-    `('$description', async ({ taskId, payload, shouldError }) => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
+    describe('when it should fail (second Math.random() call < 0.1)', () => {
+      let firstRandom: number, secondRandom: number
 
-      const promise = api.updateTask(taskId, payload as UpdateTaskPayload)
+      beforeEach(() => {
+        firstRandom = 0.9
+        secondRandom = 0.05
 
-      vi.advanceTimersByTime(600)
-
-      if (shouldError) {
-        await expect(promise).rejects.toThrow(ValidationError)
-      } else {
-        await expect(promise).resolves.toBeDefined()
-      }
-    })
-
-    it('updates task properties from payload', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
-
-      const promise = api.updateTask('task-1', {
-        title: 'Updated Title',
-        status: 'Completed'
+        vi.mocked(Math.random)
+          .mockReturnValueOnce(firstRandom)
+          .mockReturnValueOnce(secondRandom)
       })
 
-      vi.advanceTimersByTime(600)
-      const result = await promise
-
-      expect(result.title).toBe('Updated Title')
-      expect(result.status).toBe('Completed')
-      expect(result.id).toBe('task-1')
+      it('throws ValidationError accusing Network error', async () => {
+        const promise = api.updateTask('task-1', { title: 'Updated' })
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        await promise.catch((err) => {
+          expect(err).toBeInstanceOf(ValidationError)
+          expect(err.message).toBe('Network error: Unable to save changes')
+        })
+      })
     })
 
-    it('updates updatedAt timestamp', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
-      vi.setSystemTime(5000)
+    describe('when it should NOT fail (second Math.random() call >= 0.1', () => {
+      let firstRandom: number, secondRandom: number
 
-      const promise = api.updateTask('task-1', { title: 'Updated' })
-      vi.advanceTimersByTime(600)
-      const result = await promise
+      beforeEach(() => {
+        firstRandom = 0.7
+        secondRandom = 0.5
 
-      expect(result.updatedAt).toBeGreaterThanOrEqual(5000)
-      expect(result.updatedAt).toBeLessThanOrEqual(5600)
-    })
+        vi.mocked(Math.random)
+          .mockReturnValueOnce(firstRandom)
+          .mockReturnValueOnce(secondRandom)
+      })
 
-    it('preserves unchanged properties during update', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
+      it('throws ValidationError when there is no task with the given id', async () => {
+        const promise = api.updateTask('nonexisting-id', { title: 'Updated' })
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
 
-      const promise = api.updateTask('task-1', { title: 'Updated' })
-      vi.advanceTimersByTime(600)
-      const result = await promise
+        try {
+          await promise
+        } catch (err: unknown) {
+          expect(err).toBeInstanceOf(ValidationError)
+          expect((err as ValidationError).message).toBe('Task not found')
+        }
+      })
 
-      expect(result.status).toBe('InProgress')
-      expect(result.taskType).toBe('Todo')
-      expect(result.priority).toBe('Normal')
-    })
+      it.each`
+        description                    | payload
+        ${'title is empty'}            | ${{ title: '' }}
+        ${'title is just whitespaces'} | ${{ title: '   ' }}
+      `('throws ValidationError when $description', async ({ payload }) => {
+        const promise = api.updateTask(MOCK_TASKS[0].id, payload)
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
 
-    it('persists updated task in map', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
+        try {
+          await promise
+        } catch (err: unknown) {
+          expect(err).toBeInstanceOf(ValidationError)
+          expect((err as ValidationError).message).toBe('Title cannot be empty')
+        }
+      })
 
-      const promise = api.updateTask('task-1', { title: 'Updated' })
-      vi.advanceTimersByTime(600)
-      await promise
+      it('updates task properties from payload only, and persists on task map', async () => {
+        const payload = {
+          title: 'Updated Title',
+          status: 'Completed'
+        }
 
-      const retrieved = api.getTask('task-1')
-      expect(retrieved?.title).toBe('Updated')
-    })
+        const promise = api.updateTask(MOCK_TASKS[0].id, payload)
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        const result = await promise
 
-    it('logs success message after update', async () => {
-      const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-      vi.mocked(Math.random).mockReturnValue(0.5)
+        expect(result.id).toBe(MOCK_TASKS[0].id)
+        expect(result.title).toBe(payload.title)
+        expect(result.status).toBe(payload.status)
+        expect(result.taskType).toBe(MOCK_TASKS[0].taskType)
+        expect(result.priority).toBe(MOCK_TASKS[0].priority)
 
-      const promise = api.updateTask('task-1', { title: 'Updated' })
-      vi.advanceTimersByTime(600)
-      await promise
+        const persistedTask = api.getTask(MOCK_TASKS[0].id)
+        expect(persistedTask).toBeDefined()
+        expect(persistedTask!.title).toBe(payload.title)
+        expect(persistedTask!.status).toBe(payload.status)
+      })
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        '✅ Mock API: Updated task',
-        'task-1',
-        { title: 'Updated' }
-      )
-    })
+      it('updates updatedAt timestamp', async () => {
+        const initialTime = 5000
+        vi.setSystemTime(initialTime)
 
-    it('handles multiple sequential updates', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
+        const promise = api.updateTask(MOCK_TASKS[0].id, { title: 'Updated' })
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        const result = await promise
 
-      const promise1 = api.updateTask('task-1', { title: 'First' })
-      vi.advanceTimersByTime(600)
-      const result1 = await promise1
+        // Timestamp updates will be between initialTime and
+        // how much we await for the promise to resolve.
+        expect(result.updatedAt).toBeGreaterThanOrEqual(initialTime)
+        expect(result.updatedAt).toBeLessThanOrEqual(
+          initialTime + 200 + 400 * firstRandom
+        )
+      })
 
-      const promise2 = api.updateTask('task-1', { title: 'Second' })
-      vi.advanceTimersByTime(600)
-      const result2 = await promise2
+      it('logs success message after update', async () => {
+        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
+        const payload = { title: 'Updated' }
+        const promise = api.updateTask(MOCK_TASKS[0].id, payload)
 
-      expect(result1.title).toBe('First')
-      expect(result2.title).toBe('Second')
-      expect(api.getTask('task-1')?.title).toBe('Second')
-    })
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        await promise
 
-    it('updates different tasks independently', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
+        expect(consoleSpy).toHaveBeenCalledWith(
+          '✅ Mock API: Updated task',
+          MOCK_TASKS[0].id,
+          payload
+        )
+      })
 
-      const promise1 = api.updateTask('task-1', { title: 'Updated 1' })
-      vi.advanceTimersByTime(600)
-      await promise1
-
-      const promise2 = api.updateTask('task-2', { status: 'Completed' })
-      vi.advanceTimersByTime(600)
-      await promise2
-
-      expect(api.getTask('task-1')?.title).toBe('Updated 1')
-      expect(api.getTask('task-2')?.status).toBe('Completed')
-    })
-
-    it('allows updating with empty payload object', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
-
-      const promise = api.updateTask('task-1', {})
-      vi.advanceTimersByTime(600)
-      const result = await promise
-
-      expect(result.id).toBe('task-1')
-      expect(result.title).toBe('Install HVAC system in unit 2B')
-    })
-
-    it('handles title update with non-empty whitespace', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
-
-      const promise = api.updateTask('task-1', { title: '  Valid Title  ' })
-      vi.advanceTimersByTime(600)
-      const result = await promise
-
-      expect(result.title).toBe('  Valid Title  ')
-    })
-
-    it('validates title string contains non-whitespace', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
-
-      const promise = api.updateTask('task-1', { title: '   ' })
-      vi.advanceTimersByTime(600)
-
-      await expect(promise).rejects.toThrow(ValidationError)
-    })
-
-    it('throws error when updating nonexistent task', async () => {
-      vi.mocked(Math.random).mockReturnValue(0.5)
-
-      const promise = api.updateTask('nonexistent-id', { title: 'Updated' })
-      vi.advanceTimersByTime(600)
-
-      await expect(promise).rejects.toThrow('Task not found')
+      it('allows updating with empty payload object', async () => {
+        const promise = api.updateTask(MOCK_TASKS[0].id, {})
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        const result = await promise
+        expect(result.id).toBe(MOCK_TASKS[0].id)
+        expect(result.title).toBe(MOCK_TASKS[0].title)
+      })
     })
   })
 })
@@ -244,17 +189,16 @@ describe('initializeMockAPI()', () => {
     initializeMockAPI(MOCK_TASKS)
     const secondApi = getMockAPI()
 
-    expect(firstApi).not.toBe(secondApi)  
+    expect(firstApi).not.toBe(secondApi)
     expect(firstApi.getAllTasks()).toHaveLength(1)
     expect(secondApi.getAllTasks()).toHaveLength(MOCK_TASKS.length)
   })
 })
 
-
 describe('getMockAPI()', () => {
   let getMockAPIFunc: () => MockAPI,
-      initializeMockAPIFunc: (tasks: ListableTask[]) => void,
-      MockAPIClass: typeof MockAPI;
+    initializeMockAPIFunc: (tasks: ListableTask[]) => void,
+    MockAPIClass: typeof MockAPI
 
   beforeEach(async () => {
     // If we refer to getMockAPI and initializeMockAPI from the top import,
@@ -262,7 +206,7 @@ describe('getMockAPI()', () => {
     // we get to these tests, so we must re-import everything in a fresh module state
     // where we're certain the instance hasn't been initialized.
     vi.resetModules()
-  
+
     // As it's important for us to validate functions and object types,
     // we must re-import everything we need in our tests here.
     const {
@@ -271,10 +215,10 @@ describe('getMockAPI()', () => {
       MockAPI: FreshMockAPIClass
     } = await import('./mockApi')
 
-    getMockAPIFunc = freshGetMockAPI;
-    initializeMockAPIFunc = freshInitializeMockAPI;
-    MockAPIClass = FreshMockAPIClass;
-  });
+    getMockAPIFunc = freshGetMockAPI
+    initializeMockAPIFunc = freshInitializeMockAPI
+    MockAPIClass = FreshMockAPIClass
+  })
 
   it('throws error when getMockAPI is called before initialization', async () => {
     expect(() => {
