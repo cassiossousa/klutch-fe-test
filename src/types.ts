@@ -96,10 +96,7 @@ export interface TaskTableColumnConfig {
   showUpdatedAt?: boolean
 }
 
-export interface UpdateTaskPayload {
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-  [key: string]: any
-}
+export type UpdateTaskPayload = Partial<ListableTask>
 
 export class ValidationError extends Error {
   messages: string[]

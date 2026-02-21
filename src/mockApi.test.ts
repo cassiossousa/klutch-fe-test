@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { MockAPI, initializeMockAPI, getMockAPI } from './mockApi'
 import { ValidationError } from './types'
-import type { ListableTask, UpdateTaskPayload } from './types'
+import type { ListableTask, TaskStatus, UpdateTaskPayload } from './types'
 import { MOCK_TASKS } from './mockData'
 
 describe('MockAPI', () => {
@@ -113,23 +113,29 @@ describe('MockAPI', () => {
       it('updates task properties from payload only, and persists on task map', async () => {
         const payload = {
           title: 'Updated Title',
-          status: 'Completed'
+          status: 'Completed' as TaskStatus
         }
 
         const promise = api.updateTask(MOCK_TASKS[0].id, payload)
         vi.advanceTimersByTime(200 + 400 * firstRandom)
         const result = await promise
 
+        // Updates are returned by the promise
         expect(result.id).toBe(MOCK_TASKS[0].id)
         expect(result.title).toBe(payload.title)
         expect(result.status).toBe(payload.status)
+
+        // Properties not on payload are not updated
         expect(result.taskType).toBe(MOCK_TASKS[0].taskType)
         expect(result.priority).toBe(MOCK_TASKS[0].priority)
 
+        // Updates are persisted
         const persistedTask = api.getTask(MOCK_TASKS[0].id)
         expect(persistedTask).toBeDefined()
         expect(persistedTask!.title).toBe(payload.title)
         expect(persistedTask!.status).toBe(payload.status)
+        expect(persistedTask!.taskType).toBe(MOCK_TASKS[0].taskType)
+        expect(persistedTask!.priority).toBe(MOCK_TASKS[0].priority)
       })
 
       it('updates updatedAt timestamp', async () => {
