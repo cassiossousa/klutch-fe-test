@@ -103,17 +103,17 @@
               />
             </th>
           {/if}
-          {#if columnConfig.showStatus}<th style="width: 80px;">Status</th>{/if}
-          {#if columnConfig.showNumber}<th style="width: 100px;">Number</th>{/if}
+          {#if columnConfig.showStatus}<th style="min-width: 80px;">Status</th>{/if}
+          {#if columnConfig.showNumber}<th style="min-width: 100px;">Number</th>{/if}
           {#if columnConfig.showTitle}<th>Title</th>{/if}
-          {#if columnConfig.showProjectName}<th style="width: 180px;">Project</th>{/if}
-          {#if columnConfig.showDueDate}<th style="width: 120px;">Due Date</th>{/if}
-          {#if columnConfig.showCoordinator}<th style="width: 80px;">Coordinator</th>{/if}
-          {#if columnConfig.showAssignedTo}<th style="width: 120px;">Assigned To</th>{/if}
-          {#if columnConfig.showUpdates}<th style="width: 120px;">Updates</th>{/if}
-          {#if columnConfig.showTags}<th style="width: 150px;">Tags</th>{/if}
-          {#if columnConfig.showWorkOrder}<th style="width: 120px;">Work Order</th>{/if}
-          {#if columnConfig.showArea}<th style="width: 120px;">Area</th>{/if}
+          {#if columnConfig.showProjectName}<th style="min-width: 180px;">Project</th>{/if}
+          {#if columnConfig.showDueDate}<th style="min-width: 120px;">Due Date</th>{/if}
+          {#if columnConfig.showCoordinator}<th style="min-width: 80px;">Coordinator</th>{/if}
+          {#if columnConfig.showAssignedTo}<th style="min-width: 120px;">Assigned To</th>{/if}
+          {#if columnConfig.showUpdates}<th style="min-width: 120px;">Updates</th>{/if}
+          {#if columnConfig.showTags}<th style="min-width: 150px;">Tags</th>{/if}
+          {#if columnConfig.showWorkOrder}<th style="min-width: 120px;">Work Order</th>{/if}
+          {#if columnConfig.showArea}<th style="min-width: 120px;">Area</th>{/if}
         </tr>
       </thead>
       <tbody>
