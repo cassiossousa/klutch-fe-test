@@ -18,4 +18,5 @@
   <span class="material-symbols-rounded" style="color: {config.color}; font-size: 20px;">
     {config.icon}
   </span>
+  <div>{config.label}</div>
 </div>
