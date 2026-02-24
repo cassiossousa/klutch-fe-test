@@ -10,7 +10,7 @@
     "check": "svelte-check --tsconfig ./tsconfig.json",
     "test": "vitest",
     "test-cov": "vitest --coverage",
-    "test-watch": "vitest --watch",
+    "test-watch": "vitest --watch --coverage",
     "lint": "eslint src",
     "lint-fix": "eslint --fix src",
     "prepare": "husky"
