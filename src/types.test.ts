@@ -1,11 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import { ValidationError } from './types'
 
 describe('ValidationError', () => {
   it('creates instance with messages array', () => {
     const error = new ValidationError(['Error 1', 'Error 2'])
-    expect(error).toBeInstanceOf(ValidationError)
     expect(error).toBeInstanceOf(Error)
+    expect(error).toBeInstanceOf(ValidationError)
     expect(error.messages).toEqual(['Error 1', 'Error 2'])
   })
 
@@ -47,7 +47,7 @@ describe('ValidationError', () => {
     })
 
     it('throws ValidationError with errors from response when not ok', async () => {
-      ;(mockResponse.json as any).mockResolvedValue({
+      ;(mockResponse.json as Mock).mockResolvedValue({
         errors: ['API Error 1', 'API Error 2']
       })
 
@@ -63,7 +63,7 @@ describe('ValidationError', () => {
     })
 
     it('throws ValidationError with default message when json parsing fails', async () => {
-      ;(mockResponse.json as any).mockRejectedValue(new Error('Parse error'))
+      ;(mockResponse.json as Mock).mockRejectedValue(new Error('Parse error'))
 
       try {
         await ValidationError.handle(mockResponse)
@@ -74,7 +74,9 @@ describe('ValidationError', () => {
     })
 
     it('throws ValidationError with default message when errors property is missing', async () => {
-      ;(mockResponse.json as any).mockResolvedValue({ message: 'Some message' })
+      ;(mockResponse.json as Mock).mockResolvedValue({
+        message: 'Some message'
+      })
 
       try {
         await ValidationError.handle(mockResponse)
