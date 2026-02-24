@@ -53,7 +53,7 @@
 <Tr on:click={handleClick}>
   {#if isSelectColumnVisible && columnConfig.showCheckbox}
     <Td
-      style="text-align: center; padding: 0.5rem;"
+      style="text-align: center; padding-top: 0.5rem; padding-bottom: 0.5rem;"
       on:click={(e) => {
         e.stopPropagation()
       }}
@@ -70,19 +70,19 @@
   {/if}
 
   {#if columnConfig.showStatus}
-    <Td style="padding: 0.5rem;">
+    <Td>
       <StatusBadge status={task.status} />
     </Td>
   {/if}
 
   {#if columnConfig.showNumber}
-    <Td style="padding: 0.5rem;">
+    <Td>
       <span style="font-family: monospace; color: #71717a;">{task.number}</span>
     </Td>
   {/if}
 
   {#if columnConfig.showTitle}
-    <Td style="padding: 0.5rem;">
+    <Td>
       <div style="display: flex; align-items: center; gap: 0.5rem;">
         {#if task.photoCount > 0}
           <MediaThumbnail
@@ -101,19 +101,19 @@
   {/if}
 
   {#if columnConfig.showProjectName}
-    <Td style="padding: 0.5rem;">
+    <Td>
       {task.projectName}
     </Td>
   {/if}
 
   {#if columnConfig.showDueDate}
-    <Td style="padding: 0.5rem;">
+    <Td>
       {task.dueDate ? formatDisplayDate(task.dueDate) : '—'}
     </Td>
   {/if}
 
   {#if columnConfig.showCoordinator}
-    <Td style="padding: 0.5rem;">
+    <Td>
       {#if task.coordinatorInitials}
         <UserAvatar
           initials={task.coordinatorInitials}
@@ -126,7 +126,7 @@
   {/if}
 
   {#if columnConfig.showAssignedTo}
-    <Td style="padding: 0.5rem;">
+    <Td>
       {#if task.assignedToInitials}
         <UserAvatar
           initials={task.assignedToInitials}
@@ -139,7 +139,7 @@
   {/if}
 
   {#if columnConfig.showUpdates}
-    <Td style="padding: 0.5rem;">
+    <Td>
       {#if task.updatesCount > 0}
         <span style="font-size: 0.875rem; color: #71717a;">
           {task.updatesCount} update{task.updatesCount > 1 ? 's' : ''}
@@ -151,7 +151,7 @@
   {/if}
 
   {#if columnConfig.showTags}
-    <Td style="padding: 0.5rem;">
+    <Td>
       {#if task.tags && task.tags.length > 0}
         <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
           {#each task.tags.slice(0, 2) as tag, i (tag + `-${i}`)}
@@ -168,7 +168,7 @@
   {/if}
 
   {#if columnConfig.showWorkOrder}
-    <Td style="padding: 0.5rem;">
+    <Td>
       {#if task.workOrderId}
         <a
           href={`/work-orders/${task.workOrderId}`}
@@ -187,7 +187,7 @@
   {/if}
 
   {#if columnConfig.showArea}
-    <Td style="padding: 0.5rem;">
+    <Td>
       {task.areaName || '—'}
     </Td>
   {/if}
