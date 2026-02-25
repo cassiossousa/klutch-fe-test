@@ -1,14 +1,14 @@
 import js from '@eslint/js'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
-import eslintConfigPrettier from 'eslint-config-prettier'
-import { defineConfig, globalIgnores } from 'eslint/config'
-import vitest from '@vitest/eslint-plugin'
 import svelte from 'eslint-plugin-svelte'
-import svelteConfig from './svelte.config.js'
+import prettier from 'eslint-config-prettier'
 
-export default defineConfig([
-  globalIgnores(['dist', 'coverage', 'node_modules']),
+export default [
+  // Ignore build output
+  {
+    ignores: ['dist', 'node_modules', '.svelte-kit']
+  },
 
   // Base JS config
   js.configs.recommended,
@@ -17,9 +17,23 @@ export default defineConfig([
   ...tseslint.configs.recommended,
 
   // Svelte config
-  ...svelte.configs.recommended,
+  ...svelte.configs['flat/recommended'],
 
   {
+    files: ['**/*.svelte'],
+    languageOptions: {
+      parserOptions: {
+        parser: tseslint.parser,
+        extraFileExtensions: ['.svelte']
+      },
+      globals: {
+        ...globals.browser
+      }
+    }
+  },
+
+  {
+    files: ['**/*.ts', '**/*.svelte'],
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -28,65 +42,16 @@ export default defineConfig([
     }
   },
 
+  // Vitest globals
   {
-    files: ['src/**/*.{svelte,ts,tsx}'],
+    files: ['**/*.test.ts'],
     languageOptions: {
-      // Specify a parser for each language, if needed:
-      // parser: {
-      //   ts: ts.parser,
-      //   js: espree,    // Use espree for .js files (add: import espree from 'espree')
-      //   typescript: ts.parser
-      // },
-      parser: tseslint.parser,
-      parserOptions: {
-        tsconfigRootDir: __dirname,
-        extraFileExtensions: ['.svelte'], // Add support for additional file extensions, such as .svelte
-        project: './tsconfig.json',
-        ecmaVersion: 2022,
-        sourceType: 'module',
-        ecmaFeatures: {
-          jsx: true
-        },
-        // We recommend importing and specifying svelte.config.js.
-        // By doing so, some rules in eslint-plugin-svelte will automatically read the configuration and adjust their behavior accordingly.
-        // While certain Svelte settings may be statically loaded from svelte.config.js even if you don’t specify it,
-        // explicitly specifying it ensures better compatibility and functionality.
-        //
-        // If non-serializable properties are included, running ESLint with the --cache flag will fail.
-        // In that case, please remove the non-serializable properties. (e.g. `svelteConfig: { ...svelteConfig, kit: { ...svelteConfig.kit, typescript: undefined }}`)
-        svelteConfig
-      },
       globals: {
-        ...globals.browser
+        ...globals.node
       }
     }
   },
 
-  // Node config files
-  {
-    files: ['*.config.ts'],
-    languageOptions: {
-      parser: tseslint.parser,
-      globals: globals.node
-    }
-  },
-
-  // Vitest config
-  {
-    files: ['src/**/*.test.{svelte,ts,tsx}'],
-    plugins: {
-      vitest
-    },
-    languageOptions: {
-      globals: {
-        ...vitest.environments.env.globals
-      }
-    },
-    rules: {
-      ...vitest.configs.recommended.rules
-    }
-  },
-
-  // Disable formatting rules that conflict with Prettier
-  eslintConfigPrettier
-])
+  // Disable formatting conflicts
+  prettier
+]

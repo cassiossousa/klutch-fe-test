@@ -1,5 +1,4 @@
 import { MockAPI, initializeMockAPI, getMockAPI } from './mockApi'
-import { ValidationError } from './types'
 import type { ListableTask, TaskStatus } from './types'
 import { MOCK_TASKS } from './mockData'
 
@@ -62,10 +61,10 @@ describe('MockAPI', () => {
       it('throws ValidationError accusing Network error', async () => {
         const promise = api.updateTask('task-1', { title: 'Updated' })
         vi.advanceTimersByTime(200 + 400 * firstRandom)
-        await promise.catch((err) => {
-          expect(err).toBeInstanceOf(ValidationError)
-          expect(err.message).toBe('Network error: Unable to save changes')
-        })
+        await expect(promise).rejects.toHaveProperty(
+          'message',
+          'Network error: Unable to save changes'
+        )
       })
     })
 
@@ -84,13 +83,10 @@ describe('MockAPI', () => {
       it('throws ValidationError when there is no task with the given id', async () => {
         const promise = api.updateTask('nonexisting-id', { title: 'Updated' })
         vi.advanceTimersByTime(200 + 400 * firstRandom)
-
-        try {
-          await promise
-        } catch (err: unknown) {
-          expect(err).toBeInstanceOf(ValidationError)
-          expect((err as ValidationError).message).toBe('Task not found')
-        }
+        await expect(promise).rejects.toHaveProperty(
+          'message',
+          'Task not found'
+        )
       })
 
       it.each`
@@ -100,13 +96,10 @@ describe('MockAPI', () => {
       `('throws ValidationError when $description', async ({ payload }) => {
         const promise = api.updateTask(MOCK_TASKS[0].id, payload)
         vi.advanceTimersByTime(200 + 400 * firstRandom)
-
-        try {
-          await promise
-        } catch (err: unknown) {
-          expect(err).toBeInstanceOf(ValidationError)
-          expect((err as ValidationError).message).toBe('Title cannot be empty')
-        }
+        await expect(promise).rejects.toHaveProperty(
+          'message',
+          'Title cannot be empty'
+        )
       })
 
       it('updates task properties from payload only, and persists on task map', async () => {

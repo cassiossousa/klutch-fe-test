@@ -9,7 +9,11 @@
   title={fullName || initials}
 >
   {#if avatarUrl}
-    <img src={avatarUrl} alt={fullName || initials} class="w-full h-full rounded-full" />
+    <img
+      src={avatarUrl}
+      alt={fullName || initials}
+      class="w-full h-full rounded-full"
+    />
   {:else}
     {initials}
   {/if}

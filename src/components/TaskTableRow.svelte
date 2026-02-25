@@ -1,13 +1,13 @@
 <script lang="ts">
-  import {createEventDispatcher} from 'svelte'
-  import type {ListableTask, TaskTableColumnConfig} from '../types'
+  import { createEventDispatcher } from 'svelte'
+  import type { ListableTask, TaskTableColumnConfig } from '../types'
   import Tr from './stubs/Tr.svelte'
   import Td from './stubs/Td.svelte'
   import StatusBadge from './stubs/StatusBadge.svelte'
   import UserAvatar from './stubs/UserAvatar.svelte'
   import Pill from './stubs/Pill.svelte'
   import MediaThumbnail from './stubs/MediaThumbnail.svelte'
-  import {formatDisplayDate} from '../utils'
+  import { formatDisplayDate } from '../utils'
 
   export let task: ListableTask
   export let columnConfig: TaskTableColumnConfig
@@ -32,13 +32,13 @@
 
   function handleCheckboxChange(event: Event): void {
     const target = event.target as HTMLInputElement
-    const mouseEvent = event as MouseEvent & {currentTarget: HTMLInputElement}
+    const mouseEvent = event as MouseEvent & { currentTarget: HTMLInputElement }
 
     dispatch('checkboxSelectionChange', {
       taskId: task.id,
       selected: target.checked,
       shiftKey: mouseEvent.shiftKey || false,
-      rowIndex,
+      rowIndex
     })
   }
 
@@ -91,7 +91,9 @@
             photoCount={task.photoCount}
             on:click={(e) => {
               e.stopPropagation()
-              alert(`View ${task.photoCount} photo${task.photoCount > 1 ? 's' : ''}`)
+              alert(
+                `View ${task.photoCount} photo${task.photoCount > 1 ? 's' : ''}`
+              )
             }}
           />
         {/if}
