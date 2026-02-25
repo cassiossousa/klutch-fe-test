@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
+  // eslint-disable-next-line svelte/no-svelte-internal
+  import { onMount } from 'svelte/internal'
   import type { ListableTask, TaskTableColumnConfig } from './types'
   import { MOCK_TASKS } from './mockData'
   import { initializeMockAPI, getMockAPI } from './mockApi'
