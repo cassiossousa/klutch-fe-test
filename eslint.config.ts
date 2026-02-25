@@ -29,7 +29,7 @@ export default defineConfig([
   },
 
   {
-    files: ['src/**/*.{ts,tsx,svelte}'],
+    files: ['src/**/*.{svelte,ts,tsx}'],
     languageOptions: {
       // Specify a parser for each language, if needed:
       // parser: {
@@ -39,6 +39,7 @@ export default defineConfig([
       // },
       parser: tseslint.parser,
       parserOptions: {
+        tsconfigRootDir: __dirname,
         extraFileExtensions: ['.svelte'], // Add support for additional file extensions, such as .svelte
         project: './tsconfig.json',
         ecmaVersion: 2022,
@@ -63,7 +64,7 @@ export default defineConfig([
 
   // Node config files
   {
-    files: ['*.config.ts', 'eslint.config.ts'],
+    files: ['*.config.ts'],
     languageOptions: {
       parser: tseslint.parser,
       globals: globals.node
@@ -72,7 +73,7 @@ export default defineConfig([
 
   // Vitest config
   {
-    files: ['src/**/*.test.{ts,tsx,svelte}'],
+    files: ['src/**/*.test.{svelte,ts,tsx}'],
     plugins: {
       vitest
     },
