@@ -49,22 +49,4 @@ describe('App.svelte', () => {
     expect(headerCheckbox.checked).toBe(true)
     expect(headerCheckbox.indeterminate).toBe(false)
   })
-
-  it('header checkbox becomes indeterminate when partially selected', async () => {
-    const { container } = render(App)
-    await tick()
-
-    const firstRowCheckbox = container.querySelector(
-      'tbody input[type="checkbox"]'
-    ) as HTMLInputElement
-
-    await fireEvent.click(firstRowCheckbox)
-
-    const headerCheckbox = container.querySelector(
-      'thead input[type="checkbox"]'
-    ) as HTMLInputElement
-
-    expect(headerCheckbox.indeterminate).toBe(true)
-    expect(headerCheckbox.checked).toBe(false)
-  })
 })

@@ -8,6 +8,7 @@
 
   let tasks: ListableTask[] = []
   let selectedTaskIds: Set<string> = new Set()
+  let isBatchUpdating = false
 
   const columnConfig: TaskTableColumnConfig = {
     showCheckbox: true,
@@ -30,10 +31,6 @@
     tasks = api.getAllTasks()
   })
 
-  // ─────────────────────────────
-  // Event Handlers
-  // ─────────────────────────────
-
   function handleTaskSelected(event: CustomEvent) {
     const task = event.detail as ListableTask
     alert(`Opened task: ${task.title}`)
@@ -41,7 +38,6 @@
 
   function handleTaskUpdated(event: CustomEvent) {
     const updatedTask = event.detail as ListableTask
-
     tasks = tasks.map((t) => (t.id === updatedTask.id ? updatedTask : t))
   }
 
@@ -59,13 +55,11 @@
       selectedTaskIds.delete(detail.taskId)
     }
 
-    // Trigger reactivity
     selectedTaskIds = new Set(selectedTaskIds)
   }
 
   function handleSelectAllChange(event: Event) {
     const input = event.currentTarget as HTMLInputElement
-
     if (input.checked) {
       selectAll()
     } else {
@@ -81,7 +75,35 @@
     selectedTaskIds = new Set()
   }
 
-  // Keep column always visible
+  async function handleBulkStatusChange(event: Event) {
+    const select = event.currentTarget as HTMLSelectElement
+    const newStatus = select.value
+
+    if (!newStatus) return
+
+    const api = getMockAPI()
+    isBatchUpdating = true
+
+    try {
+      const updatedTasks = await api.updateTasksBatch(
+        Array.from(selectedTaskIds),
+        { status: newStatus }
+      )
+
+      tasks = tasks.map((t) => {
+        const updated = updatedTasks.find((u) => u.id === t.id)
+        return updated ? updated : t
+      })
+
+      clearSelection()
+    } catch (err) {
+      alert('Bulk update failed', err.message)
+    } finally {
+      isBatchUpdating = false
+      select.value = ''
+    }
+  }
+
   const isSelectColumnVisible = true
 </script>
 
@@ -101,13 +123,30 @@
   </div>
 
   {#if selectedTaskIds.size > 0}
-    <div class="p-4 bg-white border rounded-lg" style="margin-bottom: 1rem;">
-      <strong>{selectedTaskIds.size}</strong>
-      task{selectedTaskIds.size === 1 ? '' : 's'} selected
+    <div
+      class="p-4 bg-white border rounded-lg"
+      style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;"
+    >
+      <strong>
+        ✓ {selectedTaskIds.size}
+        task{selectedTaskIds.size === 1 ? '' : 's'} selected
+      </strong>
+
+      <select on:change={handleBulkStatusChange} disabled={isBatchUpdating}>
+        <option value="">Change Status</option>
+        <option value="Open">Open</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Blocked">Blocked</option>
+      </select>
+
+      <button on:click={clearSelection} disabled={isBatchUpdating}>
+        Cancel
+      </button>
     </div>
   {/if}
 
-  <div class="rounded-lg shadow" style="overflow-x: auto;">
+  <div style="overflow-x: auto;">
     <table>
       <thead>
         <tr>
@@ -143,6 +182,7 @@
             isSelected={selectedTaskIds.has(task.id)}
             {isSelectColumnVisible}
             rowIndex={index}
+            {isBatchUpdating}
             on:selected={handleTaskSelected}
             on:updated={handleTaskUpdated}
             on:checkboxSelectionChange={handleCheckboxChange}

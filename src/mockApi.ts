@@ -1,10 +1,8 @@
 import type { ListableTask, UpdateTaskPayload } from './types'
 import { ValidationError } from './types'
 
-// Simulates network latency
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Simulates occasional network errors (10% failure rate)
 const shouldFail = () => Math.random() < 0.1
 
 export class MockAPI {
@@ -13,10 +11,6 @@ export class MockAPI {
   constructor(initialTasks: ListableTask[]) {
     initialTasks.forEach((task) => this.tasks.set(task.id, task))
   }
-
-  // ─────────────────────────────
-  // Shared Helpers
-  // ─────────────────────────────
 
   private async simulateNetwork(): Promise<void> {
     await delay(200 + Math.random() * 400)
@@ -43,10 +37,6 @@ export class MockAPI {
     }
   }
 
-  // ─────────────────────────────
-  // Single Update
-  // ─────────────────────────────
-
   async updateTask(
     taskId: string,
     payload: UpdateTaskPayload
@@ -69,21 +59,14 @@ export class MockAPI {
     return updatedTask
   }
 
-  // ─────────────────────────────
-  // Batch Update (Atomic)
-  // ─────────────────────────────
-
   async updateTasksBatch(
     taskIds: string[],
     updates: UpdateTaskPayload
   ): Promise<ListableTask[]> {
     await this.simulateNetwork()
 
-    if (taskIds.length === 0) {
-      return []
-    }
+    if (taskIds.length === 0) return []
 
-    // Validate all task IDs first (atomic behavior)
     const tasksToUpdate: ListableTask[] = []
 
     for (const id of taskIds) {
@@ -94,10 +77,8 @@ export class MockAPI {
       tasksToUpdate.push(task)
     }
 
-    // Validate payload once
     this.validatePayload(updates)
 
-    // Apply updates
     const updatedTasks = tasksToUpdate.map((task) => {
       const updated = this.applyUpdate(task, updates)
       this.tasks.set(task.id, updated)
@@ -109,10 +90,6 @@ export class MockAPI {
     return updatedTasks
   }
 
-  // ─────────────────────────────
-  // Read APIs
-  // ─────────────────────────────
-
   getTask(taskId: string): ListableTask | undefined {
     return this.tasks.get(taskId)
   }
@@ -122,7 +99,6 @@ export class MockAPI {
   }
 }
 
-// Singleton instance
 let apiInstance: MockAPI | null = null
 
 export function initializeMockAPI(tasks: ListableTask[]): void {
