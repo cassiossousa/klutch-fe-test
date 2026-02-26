@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte'
+  import { createEventDispatcher, tick } from 'svelte'
   import type { ListableTask, TaskTableColumnConfig } from '../types'
+  import { getMockAPI } from '../mockApi'
   import Tr from './stubs/Tr.svelte'
   import Td from './stubs/Td.svelte'
   import StatusBadge from './stubs/StatusBadge.svelte'
@@ -14,6 +15,7 @@
   export let isSelected: boolean = false
   export let isSelectColumnVisible: boolean = true
   export let rowIndex: number = 0
+  export let isBatchUpdating: boolean = false // NEW: controlled by parent
 
   const dispatch = createEventDispatcher<{
     selected: ListableTask
@@ -26,8 +28,21 @@
     }
   }>()
 
+  const api = getMockAPI()
+
+  // ─────────────────────────────
+  // Inline Editing State
+  // ─────────────────────────────
+  let isEditing = false
+  let editedTitle = ''
+  let isSaving = false
+  let errorMessage: string | null = null
+  let inputEl: HTMLInputElement | null = null
+
   function handleClick(): void {
-    dispatch('selected', task)
+    if (!isEditing) {
+      dispatch('selected', task)
+    }
   }
 
   function handleCheckboxChange(event: Event): void {
@@ -42,29 +57,73 @@
     })
   }
 
-  // TODO: Task 1 - Implement inline editing for the title field
-  // Currently the title is read-only. Add functionality to:
-  // - Allow users to edit the title inline
-  // - Save changes to the Mock API
-  // - Handle loading and error states
-  // - Allow canceling without saving
+  async function startEditing(event: MouseEvent) {
+    event.stopPropagation()
+    if (isBatchUpdating) return
+
+    isEditing = true
+    editedTitle = task.title
+    errorMessage = null
+
+    await tick()
+    inputEl?.focus()
+    inputEl?.select()
+  }
+
+  function cancelEditing() {
+    isEditing = false
+    editedTitle = task.title
+    errorMessage = null
+  }
+
+  async function saveTitle() {
+    if (editedTitle.trim() === task.title) {
+      cancelEditing()
+      return
+    }
+
+    isSaving = true
+    errorMessage = null
+
+    try {
+      const updatedTask = await api.updateTask(task.id, {
+        title: editedTitle.trim()
+      })
+
+      dispatch('updated', updatedTask)
+      isEditing = false
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else {
+        errorMessage = 'Failed to update title'
+      }
+    } finally {
+      isSaving = false
+    }
+  }
+
+  function handleKeydown(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      saveTitle()
+    } else if (event.key === 'Escape') {
+      cancelEditing()
+    }
+  }
 </script>
 
 <Tr on:click={handleClick}>
   {#if isSelectColumnVisible && columnConfig.showCheckbox}
     <Td
       style="text-align: center; padding-top: 0.5rem; padding-bottom: 0.5rem;"
-      on:click={(e) => {
-        e.stopPropagation()
-      }}
+      on:click={(e) => e.stopPropagation()}
     >
       <input
         type="checkbox"
         checked={isSelected}
+        disabled={isBatchUpdating}
         on:change={handleCheckboxChange}
-        on:click={(e) => {
-          e.stopPropagation()
-        }}
+        on:click={(e) => e.stopPropagation()}
       />
     </Td>
   {/if}
@@ -77,7 +136,9 @@
 
   {#if columnConfig.showNumber}
     <Td>
-      <span style="font-family: monospace; color: #71717a;">{task.number}</span>
+      <span style="font-family: monospace; color: #71717a;">
+        {task.number}
+      </span>
     </Td>
   {/if}
 
@@ -97,15 +158,38 @@
             }}
           />
         {/if}
-        <span>{task.title}</span>
+
+        {#if isEditing}
+          <div style="display: flex; flex-direction: column; width: 100%;">
+            <input
+              bind:this={inputEl}
+              bind:value={editedTitle}
+              disabled={isSaving}
+              on:keydown={handleKeydown}
+              style="padding: 0.25rem; font-size: 0.875rem;"
+            />
+
+            {#if errorMessage}
+              <span style="color: red; font-size: 0.75rem;">
+                {errorMessage}
+              </span>
+            {/if}
+          </div>
+        {:else}
+          <span style="cursor: pointer;" on:click={startEditing}>
+            {task.title}
+          </span>
+        {/if}
+
+        {#if isSaving}
+          <span style="font-size: 0.75rem; color: #71717a;"> Saving... </span>
+        {/if}
       </div>
     </Td>
   {/if}
 
   {#if columnConfig.showProjectName}
-    <Td>
-      {task.projectName}
-    </Td>
+    <Td>{task.projectName}</Td>
   {/if}
 
   {#if columnConfig.showDueDate}

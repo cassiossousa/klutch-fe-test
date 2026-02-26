@@ -1,5 +1,9 @@
 # Klutch AI Front-End Engineering Test
 
+## Solution Architecture & Reasoning
+
+Please check [SOLUTION.md](./SOLUTION.md)
+
 ## Setup
 
 ```bash
@@ -7,7 +11,7 @@ npm install
 npm run dev
 ```
 
-Visit http://localhost:5173 to see the component.
+Visit [http://localhost:5173](http://localhost:5173) to see the component.
 
 ## Overview
 

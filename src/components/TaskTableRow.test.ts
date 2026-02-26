@@ -4,6 +4,8 @@ import TaskTableRow from './TaskTableRow.svelte'
 import '@testing-library/jest-dom'
 import type { ListableTask, TaskTableColumnConfig } from '../types'
 import { formatDisplayDate } from '../utils'
+import { initializeMockAPI } from '../mockApi'
+import { MOCK_TASKS } from '../mockData'
 
 vi.mock('../utils', () => ({
   formatDisplayDate: vi.fn((date: string) => `formatted-${date}`)
@@ -64,6 +66,15 @@ const showAllColumns: TaskTableColumnConfig = {
 }
 
 describe('<TaskTableRow />', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    initializeMockAPI(MOCK_TASKS)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
   it('renders all visible columns correctly', () => {
     const { getByText, getByRole, getByAltText } = render(TaskTableRow, {
       task: baseTask,

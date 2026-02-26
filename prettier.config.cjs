@@ -1,7 +1,6 @@
-import sveltePlugin from 'prettier-plugin-svelte'
-
-export default {
-  plugins: [sveltePlugin],
+/** @type {import("prettier").Config} */
+module.exports = {
+  plugins: [require('prettier-plugin-svelte')],
   trailingComma: 'none',
   tabWidth: 2,
   semi: false,
