@@ -171,7 +171,7 @@
           {#if columnConfig.showTitle}
             <th>Title</th>
             {#if columnConfig.editTitle}
-              <th style="min-width: 110px;">Edit</th>
+              <th style="min-width: 110px;">Edit Title</th>
             {/if}
           {/if}
           {#if columnConfig.showProjectName}
