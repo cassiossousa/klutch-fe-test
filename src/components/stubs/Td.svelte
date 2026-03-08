@@ -6,12 +6,6 @@
   export let truncate: boolean = true
 </script>
 
-<td
-  {...$$restProps}
-  class={className}
-  class:text-ellipsis={truncate}
-  {style}
-  on:click
->
+<td {...$$restProps} class={className} class:text-ellipsis={truncate} {style}>
   <slot />
 </td>

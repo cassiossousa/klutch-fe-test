@@ -80,6 +80,7 @@ export interface TaskTableColumnConfig {
   showCheckbox?: boolean
   showStatus?: boolean
   showTitle?: boolean
+  editTitle?: boolean
   showStartedAt?: boolean
   showEndedAt?: boolean
   showDueDate?: boolean

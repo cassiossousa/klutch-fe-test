@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom'
 import { render, screen, fireEvent } from '@testing-library/svelte'
 import { tick } from 'svelte'
 import App from './App.svelte'

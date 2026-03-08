@@ -1,20 +1,21 @@
 {
-  "name": "task-table-row-test",
+  "name": "klutch-fe-test",
   "version": "1.0.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
     "check": "svelte-check --tsconfig ./tsconfig.json",
-    "test": "vitest",
-    "test-cov": "vitest --coverage",
-    "test-watch": "vitest --watch --coverage",
+    "dev": "vite",
     "lint": "eslint src",
     "lint-fix": "eslint --fix src",
     "prettier": "prettier --write 'src/**/*.{ts,svelte}'",
-    "prettier-check": "prettier --check 'src/**/*.{ts,svelte}'"
+    "prettier-check": "prettier --check 'src/**/*.{ts,svelte}'",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test-cov": "vitest --coverage",
+    "test-watch": "vitest --watch --coverage",
+    "tsc": "tsc --noEmit"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "^3.0.1",

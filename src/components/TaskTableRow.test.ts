@@ -1,11 +1,10 @@
 import { render, fireEvent } from '@testing-library/svelte'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import TaskTableRow from './TaskTableRow.svelte'
-import '@testing-library/jest-dom'
 import type { ListableTask, TaskTableColumnConfig } from '../types'
 import { formatDisplayDate } from '../utils'
 import { initializeMockAPI } from '../mockApi'
 import { MOCK_TASKS } from '../mockData'
+import TaskTableRow from './TaskTableRow.svelte'
 
 vi.mock('../utils', () => ({
   formatDisplayDate: vi.fn((date: string) => `formatted-${date}`)

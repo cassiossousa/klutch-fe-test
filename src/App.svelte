@@ -1,10 +1,9 @@
 <script lang="ts">
-  // eslint-disable-next-line svelte/no-svelte-internal
-  import { onMount } from 'svelte/internal'
-  import type { ListableTask, TaskTableColumnConfig } from './types'
+  import type { ListableTask, TaskStatus, TaskTableColumnConfig } from './types'
   import { MOCK_TASKS } from './mockData'
   import { initializeMockAPI, getMockAPI } from './mockApi'
   import TaskTableRow from './components/TaskTableRow.svelte'
+  import { onMount } from 'svelte'
 
   let tasks: ListableTask[] = []
   let selectedTaskIds: Set<string> = new Set()
@@ -15,6 +14,7 @@
     showStatus: true,
     showNumber: true,
     showTitle: true,
+    editTitle: true,
     showProjectName: true,
     showDueDate: true,
     showCoordinator: true,
@@ -77,7 +77,7 @@
 
   async function handleBulkStatusChange(event: Event) {
     const select = event.currentTarget as HTMLSelectElement
-    const newStatus = select.value
+    const newStatus = select.value as TaskStatus
 
     if (!newStatus) return
 
@@ -97,7 +97,8 @@
 
       clearSelection()
     } catch (err) {
-      alert('Bulk update failed', err.message)
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      alert(`Bulk update failed: ${errorMessage}`)
     } finally {
       isBatchUpdating = false
       select.value = ''
@@ -135,9 +136,10 @@
       <select on:change={handleBulkStatusChange} disabled={isBatchUpdating}>
         <option value="">Change Status</option>
         <option value="Open">Open</option>
-        <option value="In Progress">In Progress</option>
+        <option value="InProgress">In Progress</option>
+        <option value="InReview">In Review</option>
         <option value="Completed">Completed</option>
-        <option value="Blocked">Blocked</option>
+        <option value="Canceled">Canceled</option>
       </select>
 
       <button on:click={clearSelection} disabled={isBatchUpdating}>
@@ -146,12 +148,12 @@
     </div>
   {/if}
 
-  <div style="overflow-x: auto;">
+  <div class="overflow-x-auto">
     <table>
       <thead>
         <tr>
           {#if columnConfig.showCheckbox}
-            <th style="width: 50px; text-align: center;">
+            <th style="width: 50px;" class="text-center">
               <input
                 type="checkbox"
                 checked={selectedTaskIds.size === tasks.length &&
@@ -160,17 +162,42 @@
               />
             </th>
           {/if}
-          {#if columnConfig.showStatus}<th>Status</th>{/if}
-          {#if columnConfig.showNumber}<th>Number</th>{/if}
-          {#if columnConfig.showTitle}<th>Title</th>{/if}
-          {#if columnConfig.showProjectName}<th>Project</th>{/if}
-          {#if columnConfig.showDueDate}<th>Due Date</th>{/if}
-          {#if columnConfig.showCoordinator}<th>Coordinator</th>{/if}
-          {#if columnConfig.showAssignedTo}<th>Assigned To</th>{/if}
-          {#if columnConfig.showUpdates}<th>Updates</th>{/if}
-          {#if columnConfig.showTags}<th>Tags</th>{/if}
-          {#if columnConfig.showWorkOrder}<th>Work Order</th>{/if}
-          {#if columnConfig.showArea}<th>Area</th>{/if}
+          {#if columnConfig.showStatus}
+            <th style="min-width: 80px;">Status</th>
+          {/if}
+          {#if columnConfig.showNumber}
+            <th style="min-width: 100px;">Number</th>
+          {/if}
+          {#if columnConfig.showTitle}
+            <th>Title</th>
+            {#if columnConfig.editTitle}
+              <th style="min-width: 110px;">Edit</th>
+            {/if}
+          {/if}
+          {#if columnConfig.showProjectName}
+            <th style="min-width: 180px;">Project</th>
+          {/if}
+          {#if columnConfig.showDueDate}
+            <th style="min-width: 120px;">Due Date</th>
+          {/if}
+          {#if columnConfig.showCoordinator}
+            <th style="min-width: 80px;">Coordinator</th>
+          {/if}
+          {#if columnConfig.showAssignedTo}
+            <th style="min-width: 120px;">Assigned To</th>
+          {/if}
+          {#if columnConfig.showUpdates}
+            <th style="min-width: 120px;">Updates</th>
+          {/if}
+          {#if columnConfig.showTags}
+            <th style="min-width: 150px;">Tags</th>
+          {/if}
+          {#if columnConfig.showWorkOrder}
+            <th style="min-width: 120px;">Work Order</th>
+          {/if}
+          {#if columnConfig.showArea}
+            <th style="min-width: 120px;">Area</th>
+          {/if}
         </tr>
       </thead>
 

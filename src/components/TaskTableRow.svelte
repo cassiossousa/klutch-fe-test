@@ -103,21 +103,18 @@
     }
   }
 
-  function handleKeydown(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      saveTitle()
-    } else if (event.key === 'Escape') {
-      cancelEditing()
+  function handleEditKeydown(e: KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      const mouseEvent = e as unknown as MouseEvent
+      startEditing(mouseEvent)
     }
   }
 </script>
 
 <Tr on:click={handleClick}>
   {#if isSelectColumnVisible && columnConfig.showCheckbox}
-    <Td
-      style="text-align: center; padding-top: 0.5rem; padding-bottom: 0.5rem;"
-      on:click={(e) => e.stopPropagation()}
-    >
+    <Td class="text-center py-2" on:click={(e) => e.stopPropagation()}>
       <input
         type="checkbox"
         checked={isSelected}
@@ -136,7 +133,7 @@
 
   {#if columnConfig.showNumber}
     <Td>
-      <span style="font-family: monospace; color: #71717a;">
+      <span class="font-mono text-zinc-400">
         {task.number}
       </span>
     </Td>
@@ -144,7 +141,7 @@
 
   {#if columnConfig.showTitle}
     <Td>
-      <div style="display: flex; align-items: center; gap: 0.5rem;">
+      <div class="flex items-center gap-2">
         {#if task.photoCount > 0}
           <MediaThumbnail
             src={task.featuredPhotoUrl}
@@ -160,32 +157,72 @@
         {/if}
 
         {#if isEditing}
-          <div style="display: flex; flex-direction: column; width: 100%;">
+          <div class="flex-col w-full">
             <input
               bind:this={inputEl}
               bind:value={editedTitle}
               disabled={isSaving}
-              on:keydown={handleKeydown}
-              style="padding: 0.25rem; font-size: 0.875rem;"
+              class="p-1 text-sm"
             />
 
             {#if errorMessage}
-              <span style="color: red; font-size: 0.75rem;">
+              <span class="text-red-600 text-xs">
                 {errorMessage}
               </span>
             {/if}
           </div>
         {:else}
-          <span style="cursor: pointer;" on:click={startEditing}>
+          <span>
             {task.title}
           </span>
         {/if}
-
-        {#if isSaving}
-          <span style="font-size: 0.75rem; color: #71717a;"> Saving... </span>
-        {/if}
       </div>
     </Td>
+    {#if columnConfig.editTitle}
+      <Td>
+        <div class="flex items-center gap-2">
+          {#if isEditing}
+            <button
+              type="button"
+              disabled={isSaving}
+              on:click={saveTitle}
+              on:keydown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  saveTitle()
+                }
+              }}
+              class="bg-none border-none cursor-pointer p-1"
+            >
+              <span class="material-symbols-rounded"> Save </span>
+            </button>
+            <button
+              type="button"
+              disabled={isSaving}
+              on:click={cancelEditing}
+              on:keydown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  cancelEditing()
+                }
+              }}
+              class="bg-none border-none cursor-pointer p-1"
+            >
+              <span class="material-symbols-rounded"> Cancel </span>
+            </button>
+          {:else}
+            <button
+              type="button"
+              on:click={startEditing}
+              on:keydown={handleEditKeydown}
+              class="bg-none border-none cursor-pointer p-1"
+            >
+              <span class="material-symbols-rounded"> Edit </span>
+            </button>
+          {/if}
+        </div>
+      </Td>
+    {/if}
   {/if}
 
   {#if columnConfig.showProjectName}
@@ -206,7 +243,7 @@
           fullName={task.coordinatorName || undefined}
         />
       {:else}
-        <span style="color: #a1a1aa;">—</span>
+        <span class="text-zinc-400">—</span>
       {/if}
     </Td>
   {/if}
@@ -219,7 +256,7 @@
           fullName={task.assignedToName || undefined}
         />
       {:else}
-        <span style="color: #a1a1aa;">—</span>
+        <span class="text-zinc-400">—</span>
       {/if}
     </Td>
   {/if}
@@ -227,11 +264,11 @@
   {#if columnConfig.showUpdates}
     <Td>
       {#if task.updatesCount > 0}
-        <span style="font-size: 0.875rem; color: #71717a;">
+        <span class="text-sm text-zinc-600">
           {task.updatesCount} update{task.updatesCount > 1 ? 's' : ''}
         </span>
       {:else}
-        <span style="color: #a1a1aa;">—</span>
+        <span class="text-zinc-400">—</span>
       {/if}
     </Td>
   {/if}
@@ -239,7 +276,7 @@
   {#if columnConfig.showTags}
     <Td>
       {#if task.tags && task.tags.length > 0}
-        <div style="display: flex; gap: 0.25rem; flex-wrap: wrap;">
+        <div class="flex gap-1 flex-wrap">
           {#each task.tags.slice(0, 2) as tag, i (tag + `-${i}`)}
             <Pill {tag} />
           {/each}
@@ -248,7 +285,7 @@
           {/if}
         </div>
       {:else}
-        <span style="color: #a1a1aa;">—</span>
+        <span class="text-zinc-400">—</span>
       {/if}
     </Td>
   {/if}
@@ -258,7 +295,7 @@
       {#if task.workOrderId}
         <a
           href={`/work-orders/${task.workOrderId}`}
-          style="color: #3b82f6; text-decoration: underline; cursor: pointer;"
+          class="text-blue-500 underline cursor-pointer"
           on:click={(e) => {
             e.stopPropagation()
             alert(`View work order: ${task.workOrderId}`)
@@ -267,7 +304,7 @@
           #{task.workOrderNumber}
         </a>
       {:else}
-        <span style="color: #a1a1aa;">—</span>
+        <span class="text-zinc-400">—</span>
       {/if}
     </Td>
   {/if}

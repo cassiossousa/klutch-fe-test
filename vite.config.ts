@@ -1,9 +1,6 @@
 import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { getViteBaseConfig } from './vite.base.config'
 
-export default defineConfig({
-  plugins: [svelte()],
-  server: {
-    port: 5173
-  }
+export default defineConfig(({ command }) => {
+  return getViteBaseConfig(command)
 })
