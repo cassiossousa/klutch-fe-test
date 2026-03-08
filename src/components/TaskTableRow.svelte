@@ -112,7 +112,7 @@
   }
 </script>
 
-<Tr on:click={handleClick}>
+<Tr on:click={handleClick} role="row" id={`task-row-${task.id}`}>
   {#if isSelectColumnVisible && columnConfig.showCheckbox}
     <Td class="text-center py-2" on:click={(e) => e.stopPropagation()}>
       <input
@@ -121,6 +121,8 @@
         disabled={isBatchUpdating}
         on:change={handleCheckboxChange}
         on:click={(e) => e.stopPropagation()}
+        aria-label={`Select task ${task.title}`}
+        aria-describedby={`task-row-${task.id}`}
       />
     </Td>
   {/if}
@@ -157,22 +159,36 @@
         {/if}
 
         {#if isEditing}
-          <div class="flex-col w-full">
+          <div class="flex flex-col w-full">
             <input
               bind:this={inputEl}
               bind:value={editedTitle}
               disabled={isSaving}
               class="p-1 text-sm"
+              id={`edit-title-${task.id}`}
+              aria-label={`Edit task title for ${task.title}`}
+              aria-describedby={errorMessage ? `error-${task.id}` : undefined}
+              aria-invalid={errorMessage ? 'true' : 'false'}
             />
 
             {#if errorMessage}
-              <span class="text-red-600 text-xs">
+              <span
+                class="text-red-600 text-xs"
+                id={`error-${task.id}`}
+                role="alert"
+                aria-live="polite"
+              >
                 {errorMessage}
               </span>
             {/if}
           </div>
         {:else}
-          <span>
+          <span
+            id={`title-${task.id}`}
+            role="button"
+            tabindex="0"
+            aria-label={`Task: ${task.title}`}
+          >
             {task.title}
           </span>
         {/if}
@@ -185,6 +201,8 @@
             <button
               type="button"
               disabled={isSaving}
+              aria-label="Save"
+              title="Save"
               on:click={saveTitle}
               on:keydown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -192,13 +210,15 @@
                   saveTitle()
                 }
               }}
-              class="bg-none border-none cursor-pointer p-1"
+              class="bg-none border-none cursor-pointer p-0"
             >
               <span class="material-symbols-rounded"> Save </span>
             </button>
             <button
               type="button"
               disabled={isSaving}
+              aria-label="Cancel"
+              title="Cancel"
               on:click={cancelEditing}
               on:keydown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -206,7 +226,7 @@
                   cancelEditing()
                 }
               }}
-              class="bg-none border-none cursor-pointer p-1"
+              class="bg-none border-none cursor-pointer p-0"
             >
               <span class="material-symbols-rounded"> Cancel </span>
             </button>
@@ -215,7 +235,9 @@
               type="button"
               on:click={startEditing}
               on:keydown={handleEditKeydown}
-              class="bg-none border-none cursor-pointer p-1"
+              aria-label="Edit"
+              title="Edit"
+              class="bg-none border-none cursor-pointer p-0"
             >
               <span class="material-symbols-rounded"> Edit </span>
             </button>

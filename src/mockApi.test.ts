@@ -1,4 +1,4 @@
-import { MockAPI, initializeMockAPI, getMockAPI } from './mockApi'
+import { MockAPI, initializeMockAPI, getMockAPI, FAIL_RATE } from './mockApi'
 import type { ListableTask, TaskStatus } from './types'
 import { MOCK_TASKS } from './mockData'
 
@@ -46,12 +46,12 @@ describe('MockAPI', () => {
       vi.restoreAllMocks()
     })
 
-    describe('when it should fail (second Math.random() call < 0.1)', () => {
+    describe(`when it should fail (second Math.random() call < ${FAIL_RATE})`, () => {
       let firstRandom: number, secondRandom: number
 
       beforeEach(() => {
         firstRandom = 0.9
-        secondRandom = 0.05
+        secondRandom = FAIL_RATE / 2
 
         vi.mocked(Math.random)
           .mockReturnValueOnce(firstRandom)
@@ -68,12 +68,12 @@ describe('MockAPI', () => {
       })
     })
 
-    describe('when it should NOT fail (second Math.random() call >= 0.1', () => {
+    describe(`when it should NOT fail (second Math.random() call >= 0.1`, () => {
       let firstRandom: number, secondRandom: number
 
       beforeEach(() => {
         firstRandom = 0.7
-        secondRandom = 0.5
+        secondRandom = FAIL_RATE * 2
 
         vi.mocked(Math.random)
           .mockReturnValueOnce(firstRandom)

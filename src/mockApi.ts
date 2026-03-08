@@ -3,7 +3,9 @@ import { ValidationError } from './types'
 
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-const shouldFail = () => Math.random() < 0.1
+export const FAIL_RATE = 0.1
+
+const shouldFail = () => Math.random() < FAIL_RATE
 
 export class MockAPI {
   private tasks: Map<string, ListableTask> = new Map()
