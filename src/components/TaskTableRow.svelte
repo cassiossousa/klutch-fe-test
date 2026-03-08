@@ -265,7 +265,7 @@
           fullName={task.coordinatorName || undefined}
         />
       {:else}
-        <span class="text-zinc-400">—</span>
+        <span class="flex items-center justify-center text-zinc-400">—</span>
       {/if}
     </Td>
   {/if}
@@ -278,7 +278,7 @@
           fullName={task.assignedToName || undefined}
         />
       {:else}
-        <span class="text-zinc-400">—</span>
+        <span class="flex items-center justify-center text-zinc-400">—</span>
       {/if}
     </Td>
   {/if}
