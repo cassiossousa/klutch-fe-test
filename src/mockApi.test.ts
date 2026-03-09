@@ -68,7 +68,7 @@ describe('MockAPI', () => {
       })
     })
 
-    describe(`when it should NOT fail (second Math.random() call >= 0.1`, () => {
+    describe(`when it should NOT fail (second Math.random() call >= ${FAIL_RATE})`, () => {
       let firstRandom: number, secondRandom: number
 
       beforeEach(() => {
@@ -231,7 +231,7 @@ describe('MockAPI', () => {
       })
     })
 
-    describe(`when it should NOT fail (second Math.random() call >= 0.1)`, () => {
+    describe(`when it should NOT fail (second Math.random() call >= ${FAIL_RATE})`, () => {
       let firstRandom: number, secondRandom: number
 
       beforeEach(() => {

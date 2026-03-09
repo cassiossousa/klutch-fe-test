@@ -24,7 +24,8 @@
     showTags: true,
     showWorkOrder: true,
     showArea: true,
-    editTitle: true
+    editTitle: true,
+    editStatus: true
   }
 
   onMount(() => {
@@ -78,6 +79,10 @@
     errorMessage = null
   }
 
+  function canBulkUpdate() {
+    return columnConfig.editStatus === true
+  }
+
   async function handleBulkStatusChange(event: Event) {
     const select = event.currentTarget as HTMLSelectElement
     const newStatus = select.value as TaskStatus
@@ -121,32 +126,42 @@
     </h1>
 
     <div class="flex gap-2">
-      <button on:click={selectAll}>Select All</button>
-      <button on:click={clearSelection}>Clear Selection</button>
+      <button on:click={selectAll}> Select All </button>
+      <button disabled={!selectedTaskIds.size} on:click={clearSelection}>
+        Clear Selection
+      </button>
     </div>
   </div>
 
-  {#if selectedTaskIds.size > 0}
+  {#if selectedTaskIds.size > 0 && canBulkUpdate()}
     <div class="p-4 bg-white border rounded-lg flex items-center gap-4">
       <strong>
         ✓ {selectedTaskIds.size}
         task{selectedTaskIds.size === 1 ? '' : 's'} selected
       </strong>
 
-      <select on:change={handleBulkStatusChange} disabled={isBatchUpdating}>
-        <option value="">Change Status</option>
-        <option value="Open">Open</option>
-        <option value="InProgress">In Progress</option>
-        <option value="InReview">In Review</option>
-        <option value="Completed">Completed</option>
-        <option value="Canceled">Canceled</option>
-      </select>
+      {#if columnConfig.editStatus === true}
+        <select on:change={handleBulkStatusChange} disabled={isBatchUpdating}>
+          <option value="">Change Status</option>
+          <option value="Open">Open</option>
+          <option value="InProgress">In Progress</option>
+          <option value="InReview">In Review</option>
+          <option value="Completed">Completed</option>
+          <option value="Canceled">Canceled</option>
+        </select>
+      {/if}
 
       <button on:click={clearSelection} disabled={isBatchUpdating}>
         Cancel
       </button>
 
-      {#if errorMessage}
+      {#if isBatchUpdating}
+        <span class="text-blue-500" role="alert" aria-live="polite">
+          Updating Status for selected task{selectedTaskIds.size === 1
+            ? ''
+            : 's'}...
+        </span>
+      {:else if errorMessage}
         <span class="text-red-600 text-xs" role="alert" aria-live="polite">
           {errorMessage}
         </span>
