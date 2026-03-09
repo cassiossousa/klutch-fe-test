@@ -90,7 +90,7 @@
   }
 
   function getUpdatedUniqueAssignees() {
-    const assigness = new Set<string>(uniqueAssignees)
+    const assigness = new SvelteSet<string>(uniqueAssignees)
 
     tasks.forEach((task) => {
       if (task.assignedToName) {
