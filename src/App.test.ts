@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from '@testing-library/svelte'
 import { tick } from 'svelte'
 import App from './App.svelte'
 
-describe.skip('App.svelte', () => {
+describe('App.svelte', () => {
   beforeEach(() => {
     vi.spyOn(window, 'alert').mockImplementation(() => {})
   })

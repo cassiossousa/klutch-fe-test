@@ -4,9 +4,10 @@
   import { initializeMockAPI, getMockAPI } from './mockApi'
   import TaskTableRow from './components/TaskTableRow.svelte'
   import { onMount } from 'svelte'
+  import { SvelteSet } from 'svelte/reactivity'
 
   let tasks: ListableTask[] = []
-  let selectedTaskIds: Set<string> = new Set()
+  let selectedTaskIds = new SvelteSet<string>()
   let isBatchUpdating = false
   let errorMessage: string | null = null
 
@@ -56,7 +57,7 @@
       selectedTaskIds.delete(detail.taskId)
     }
 
-    selectedTaskIds = new Set(selectedTaskIds)
+    selectedTaskIds = new SvelteSet(selectedTaskIds)
   }
 
   function handleSelectAllChange(event: Event) {
@@ -69,11 +70,11 @@
   }
 
   function selectAll() {
-    selectedTaskIds = new Set(tasks.map((t) => t.id))
+    selectedTaskIds = new SvelteSet(tasks.map((t) => t.id))
   }
 
   function clearSelection() {
-    selectedTaskIds = new Set()
+    selectedTaskIds = new SvelteSet()
     errorMessage = null
   }
 
@@ -114,10 +115,7 @@
 </script>
 
 <div class="p-4">
-  <div
-    class="flex items-center justify-between gap-4"
-    style="margin-bottom: 1rem;"
-  >
+  <div class="flex items-center justify-between gap-4">
     <h1 style="font-size: 1.5rem; font-weight: 600; margin: 0;">
       Task Management Table
     </h1>
@@ -129,10 +127,7 @@
   </div>
 
   {#if selectedTaskIds.size > 0}
-    <div
-      class="p-4 bg-white border rounded-lg"
-      style="margin-bottom: 1rem; display: flex; align-items: center; gap: 1rem;"
-    >
+    <div class="p-4 bg-white border rounded-lg flex items-center gap-4">
       <strong>
         ✓ {selectedTaskIds.size}
         task{selectedTaskIds.size === 1 ? '' : 's'} selected

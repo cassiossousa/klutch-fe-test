@@ -170,6 +170,174 @@ describe('MockAPI', () => {
       })
     })
   })
+
+  describe('updateTasksBatch()', () => {
+    beforeEach(() => {
+      vi.clearAllMocks()
+      vi.useFakeTimers()
+      vi.spyOn(Math, 'random')
+      vi.spyOn(console, 'log').mockImplementation(() => {})
+    })
+
+    afterEach(() => {
+      vi.useRealTimers()
+      vi.restoreAllMocks()
+    })
+
+    describe('when taskIds array is empty', () => {
+      let firstRandom: number, secondRandom: number
+
+      beforeEach(() => {
+        firstRandom = 0.7
+        secondRandom = FAIL_RATE * 2
+
+        vi.mocked(Math.random)
+          .mockReturnValueOnce(firstRandom)
+          .mockReturnValueOnce(secondRandom)
+      })
+
+      it('returns empty array after network simulation', async () => {
+        const promise = api.updateTasksBatch([], { title: 'Updated' })
+        vi.advanceTimersByTime(200 + 400 * firstRandom) // Advance past the network delay
+        const result = await promise
+        expect(result).toEqual([])
+        // Note: console.log is not called for empty arrays
+        expect(console.log).not.toHaveBeenCalled()
+      })
+    })
+
+    describe(`when it should fail (second Math.random() call < ${FAIL_RATE})`, () => {
+      let firstRandom: number, secondRandom: number
+
+      beforeEach(() => {
+        firstRandom = 0.9
+        secondRandom = FAIL_RATE / 2
+
+        vi.mocked(Math.random)
+          .mockReturnValueOnce(firstRandom)
+          .mockReturnValueOnce(secondRandom)
+      })
+
+      it('throws ValidationError accusing Network error', async () => {
+        const promise = api.updateTasksBatch(
+          [MOCK_TASKS[0].id, MOCK_TASKS[1].id],
+          { title: 'Updated' }
+        )
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        await expect(promise).rejects.toHaveProperty(
+          'message',
+          'Network error: Unable to save changes'
+        )
+      })
+    })
+
+    describe(`when it should NOT fail (second Math.random() call >= 0.1)`, () => {
+      let firstRandom: number, secondRandom: number
+
+      beforeEach(() => {
+        firstRandom = 0.7
+        secondRandom = FAIL_RATE * 2
+
+        vi.mocked(Math.random)
+          .mockReturnValueOnce(firstRandom)
+          .mockReturnValueOnce(secondRandom)
+      })
+
+      it('throws ValidationError when one task is not found', async () => {
+        const promise = api.updateTasksBatch(
+          [MOCK_TASKS[0].id, 'nonexisting-id'],
+          { title: 'Updated' }
+        )
+        vi.advanceTimersByTime(200 + 400 * 0.7)
+        await expect(promise).rejects.toHaveProperty(
+          'message',
+          'Task not found: nonexisting-id'
+        )
+      })
+
+      it('throws ValidationError when title is empty', async () => {
+        const promise = api.updateTasksBatch(
+          [MOCK_TASKS[0].id, MOCK_TASKS[1].id],
+          { title: '' }
+        )
+        vi.advanceTimersByTime(200 + 400 * 0.7)
+        await expect(promise).rejects.toHaveProperty(
+          'message',
+          'Title cannot be empty'
+        )
+      })
+
+      it('updates multiple tasks successfully', async () => {
+        const taskIds = [MOCK_TASKS[0].id, MOCK_TASKS[1].id]
+        const updates = {
+          title: 'Batch Updated',
+          status: 'In Progress' as TaskStatus
+        }
+
+        const promise = api.updateTasksBatch(taskIds, updates)
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        const result = await promise
+
+        expect(result).toHaveLength(2)
+        expect(result[0].id).toBe(MOCK_TASKS[0].id)
+        expect(result[0].title).toBe(updates.title)
+        expect(result[0].status).toBe(updates.status)
+        expect(result[1].id).toBe(MOCK_TASKS[1].id)
+        expect(result[1].title).toBe(updates.title)
+        expect(result[1].status).toBe(updates.status)
+
+        // Verify persistence
+        const persistedTask1 = api.getTask(MOCK_TASKS[0].id)
+        const persistedTask2 = api.getTask(MOCK_TASKS[1].id)
+        expect(persistedTask1!.title).toBe(updates.title)
+        expect(persistedTask2!.title).toBe(updates.title)
+      })
+
+      it('updates updatedAt timestamp for all tasks', async () => {
+        const initialTime = 5000
+        vi.setSystemTime(initialTime)
+
+        const taskIds = [MOCK_TASKS[0].id, MOCK_TASKS[1].id]
+        const updates = { title: 'Updated' }
+
+        const promise = api.updateTasksBatch(taskIds, updates)
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        const result = await promise
+
+        result.forEach((task) => {
+          expect(task.updatedAt).toBeGreaterThanOrEqual(initialTime)
+          expect(task.updatedAt).toBeLessThanOrEqual(
+            initialTime + 200 + 400 * firstRandom
+          )
+        })
+      })
+
+      it('logs batch success message after update', async () => {
+        const taskIds = [MOCK_TASKS[0].id, MOCK_TASKS[1].id]
+        const updates = { title: 'Batch Updated' }
+
+        const promise = api.updateTasksBatch(taskIds, updates)
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        await promise
+
+        expect(console.log).toHaveBeenCalledWith(
+          '✅ Mock API: Batch updated tasks',
+          taskIds,
+          updates
+        )
+      })
+
+      it('allows updating with empty payload object', async () => {
+        const taskIds = [MOCK_TASKS[0].id]
+        const promise = api.updateTasksBatch(taskIds, {})
+        vi.advanceTimersByTime(200 + 400 * firstRandom)
+        const result = await promise
+
+        expect(result[0].id).toBe(MOCK_TASKS[0].id)
+        expect(result[0].title).toBe(MOCK_TASKS[0].title)
+      })
+    })
+  })
 })
 
 describe('initializeMockAPI()', () => {
