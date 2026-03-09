@@ -84,7 +84,8 @@
 
   function canBulkUpdate() {
     return (
-      columnConfig.editStatus === true || columnConfig.editAssignee === true
+      (columnConfig.editStatus === true && columnConfig.showStatus === true) ||
+      (columnConfig.editAssignee === true && columnConfig.showAssignee === true)
     )
   }
 
@@ -173,7 +174,7 @@
         task{selectedTaskIds.size === 1 ? '' : 's'} selected
       </strong>
 
-      {#if columnConfig.editStatus === true}
+      {#if columnConfig.editStatus === true && columnConfig.showStatus === true}
         <select on:change={handleBulkStatusChange} disabled={isBatchUpdating}>
           <option value="">Change Status</option>
           <option value="Open">Open</option>
@@ -184,7 +185,7 @@
         </select>
       {/if}
 
-      {#if columnConfig.editAssignee === true}
+      {#if columnConfig.editAssignee === true && columnConfig.showAssignee === true}
         <select on:change={handleBulkAssigneeChange} disabled={isBatchUpdating}>
           <option value="">Change Assignee</option>
           <option value="">Unassign</option>
