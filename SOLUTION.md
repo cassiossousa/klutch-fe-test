@@ -60,7 +60,7 @@ This approach ensures **scalability** (easy to add new bulk operations) while ma
 
 - **Tab navigation** between editable fields
 - **Enter to save**, **Escape to cancel** editing
-- **Consistent keyboard patterns** across all interactions
+- **Enter to trigger Save/Cancel buttons** while editing
 - **Accessibility support** with proper ARIA labels
 
 ### 2. Bulk Operations (Status & Assignee)

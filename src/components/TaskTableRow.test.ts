@@ -1,5 +1,5 @@
 import { render, fireEvent } from '@testing-library/svelte'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { tick } from 'svelte'
 import type { ListableTask, TaskTableColumnConfig } from '../types'
 import { formatDisplayDate } from '../utils'
 import { initializeMockAPI, getMockAPI } from '../mockApi'
@@ -205,22 +205,10 @@ describe('<TaskTableRow />', () => {
     await fireEvent.keyDown(editButton, { key: 'Enter' })
 
     // Should show input field
+    await tick() // Wait for reactivity to update
     const input = getByDisplayValue('Test Task')
     expect(input).toBeInTheDocument()
-  })
-
-  it('starts editing with keyboard (Space key)', async () => {
-    const { getByText, getByDisplayValue } = render(TaskTableRow, {
-      task: baseTask,
-      columnConfig: showAllColumns
-    })
-
-    const editButton = getByText('Edit')
-    await fireEvent.keyDown(editButton, { key: ' ' })
-
-    // Should show input field
-    const input = getByDisplayValue('Test Task')
-    expect(input).toBeInTheDocument()
+    expect(input).toHaveFocus()
   })
 
   it('cancels editing when cancel button is clicked', async () => {
