@@ -2,30 +2,29 @@
 
 ## Task 1: What interaction pattern did you choose and why?
 
-I implemented a **single-click inline editing pattern** for task title modification. This approach was chosen to balance speed, intuitiveness, and minimal UI friction while maintaining robust error handling and clear user feedback.
+I implemented a **button-based inline editing pattern** for task title modification. This approach was chosen to provide explicit user control and clear visual feedback during editing operations.
 
 **Key Decisions:**
 
-- **Edit / Save / Cancel buttons** for explicit control
-- **Inline input field** replaces static text during editing
-- **Auto-focus and text selection** for immediate editing capability
-- **Keyboard shortcuts** (Enter or Space to save, Escape to cancel) for power users
+- **Edit / Save / Cancel buttons** for explicit control over editing state
+- **Inline input field** replaces static text during editing mode
+- **Auto-focus and text selection** when editing begins
+- **Keyboard shortcuts** (Enter to save, Escape to cancel) within input field
 - **Loading states and error handling** provide clear feedback during operations
 
-This pattern minimizes interaction steps (click → edit → type → save) while providing immediate visual feedback and maintaining the clean, tabular interface of the task management system.
+This pattern provides **clear user control** with explicit actions while maintaining the clean tabular interface of the task management system.
 
 ---
 
 ## Task 2: How did you approach batch updates?
 
-I implemented a **comprehensive bulk update system** with reusable architecture and proper validation. The approach prioritizes user experience, data integrity, and system reliability.
+I implemented a **bulk update system** with reusable architecture and proper validation. The approach prioritizes user experience, data integrity, and system reliability.
 
 ### Core Architecture:
 
 - **Generic `handleBulkUpdate()` function** eliminates code duplication
 - **Field-specific validation** ensures only appropriate operations are available
 - **Column visibility checks** prevent confusing UI for hidden columns
-- **Optimistic updates** with proper rollback on errors
 - **Comprehensive error handling** with user-friendly messages
 
 ### Technical Implementation:
@@ -90,7 +89,7 @@ This approach ensures **scalability** (easy to add new bulk operations) while ma
 
 ### Testing Strategy
 
-- **137 tests total** with 92.36% coverage
+- **136 tests total** with comprehensive coverage
 - **Deterministic mocking** using "two-randoms trick" for predictable results
 - **Comprehensive scenarios** covering success, failure, and edge cases
 - **Real-world simulation** of network delays and API errors
@@ -146,7 +145,7 @@ This approach ensures **scalability** (easy to add new bulk operations) while ma
 - **Local component state** for editing operations
 - **Global selection state** using SvelteSet for reactivity
 - **Error boundaries** at appropriate levels (component vs. API)
-- **Optimistic updates** considered but rejected for clarity
+- **Explicit user actions** for clarity and control
 
 ### 3. API Design Patterns
 
