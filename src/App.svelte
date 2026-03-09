@@ -8,6 +8,7 @@
   let tasks: ListableTask[] = []
   let selectedTaskIds: Set<string> = new Set()
   let isBatchUpdating = false
+  let errorMessage: string | null = null
 
   const columnConfig: TaskTableColumnConfig = {
     showCheckbox: true,
@@ -73,6 +74,7 @@
 
   function clearSelection() {
     selectedTaskIds = new Set()
+    errorMessage = null
   }
 
   async function handleBulkStatusChange(event: Event) {
@@ -96,9 +98,12 @@
       })
 
       clearSelection()
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      alert(`Bulk update failed: ${errorMessage}`)
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        errorMessage = error.message
+      } else {
+        errorMessage = `Bulk update failed: ${String(error)}`
+      }
     } finally {
       isBatchUpdating = false
       select.value = ''
@@ -145,6 +150,12 @@
       <button on:click={clearSelection} disabled={isBatchUpdating}>
         Cancel
       </button>
+
+      {#if errorMessage}
+        <span class="text-red-600 text-xs" role="alert" aria-live="polite">
+          {errorMessage}
+        </span>
+      {/if}
     </div>
   {/if}
 
