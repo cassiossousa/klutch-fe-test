@@ -104,7 +104,7 @@
   }
 
   function handleEditKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter' || e.key === ' ') {
+    if (e.key === 'Enter') {
       e.preventDefault()
       const mouseEvent = e as unknown as MouseEvent
       startEditing(mouseEvent)
@@ -169,6 +169,15 @@
               aria-label={`Edit task title for ${task.title}`}
               aria-describedby={errorMessage ? `error-${task.id}` : undefined}
               aria-invalid={errorMessage ? 'true' : 'false'}
+              on:keydown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  saveTitle()
+                } else if (e.key === 'Escape') {
+                  e.preventDefault()
+                  cancelEditing()
+                }
+              }}
             />
 
             {#if errorMessage}
@@ -205,7 +214,7 @@
               title="Save"
               on:click={saveTitle}
               on:keydown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === 'Enter') {
                   e.preventDefault()
                   saveTitle()
                 }
@@ -221,7 +230,7 @@
               title="Cancel"
               on:click={cancelEditing}
               on:keydown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
+                if (e.key === 'Enter') {
                   e.preventDefault()
                   cancelEditing()
                 }
