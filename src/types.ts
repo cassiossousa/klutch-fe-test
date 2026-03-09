@@ -80,7 +80,6 @@ export interface TaskTableColumnConfig {
   showCheckbox?: boolean
   showStatus?: boolean
   showTitle?: boolean
-  editTitle?: boolean
   showStartedAt?: boolean
   showEndedAt?: boolean
   showDueDate?: boolean
@@ -95,6 +94,7 @@ export interface TaskTableColumnConfig {
   showNumber?: boolean
   showCreatedAt?: boolean
   showUpdatedAt?: boolean
+  editTitle?: boolean
 }
 
 export type UpdateTaskPayload = Partial<ListableTask>

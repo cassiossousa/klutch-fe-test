@@ -16,7 +16,6 @@
     showStatus: true,
     showNumber: true,
     showTitle: true,
-    editTitle: true,
     showProjectName: true,
     showDueDate: true,
     showCoordinator: true,
@@ -24,7 +23,8 @@
     showUpdates: true,
     showTags: true,
     showWorkOrder: true,
-    showArea: true
+    showArea: true,
+    editTitle: true
   }
 
   onMount(() => {
@@ -114,7 +114,7 @@
   const isSelectColumnVisible = true
 </script>
 
-<div class="p-4">
+<div class="flex flex-col p-4 gap-4">
   <div class="flex items-center justify-between gap-4">
     <h1 style="font-size: 1.5rem; font-weight: 600; margin: 0;">
       Task Management Table
