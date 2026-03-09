@@ -230,6 +230,11 @@
             >
               <span class="material-symbols-rounded"> Cancel </span>
             </button>
+            {#if isSaving}
+              <span class="text-blue-500" role="alert" aria-live="polite">
+                Saving...
+              </span>
+            {/if}
           {:else}
             <button
               type="button"
