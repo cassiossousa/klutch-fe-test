@@ -270,6 +270,12 @@
     </Td>
   {/if}
 
+  {#if columnConfig.showAssignee}
+    <Td>
+      {task.assignedToName || '—'}
+    </Td>
+  {/if}
+
   {#if columnConfig.showAssignedTo}
     <Td>
       {#if task.assignedToInitials}

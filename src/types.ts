@@ -85,6 +85,7 @@ export interface TaskTableColumnConfig {
   showDueDate?: boolean
   showTags?: boolean
   showCoordinator?: boolean
+  showAssignee?: boolean
   showAssignedTo?: boolean
   showUpdates?: boolean
   showPunchList?: boolean
@@ -96,6 +97,7 @@ export interface TaskTableColumnConfig {
   showUpdatedAt?: boolean
   editTitle?: boolean
   editStatus?: boolean
+  editAssignee?: boolean
 }
 
 export type UpdateTaskPayload = Partial<ListableTask>

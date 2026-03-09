@@ -10,6 +10,7 @@
   let selectedTaskIds = new SvelteSet<string>()
   let isBatchUpdating = false
   let errorMessage: string | null = null
+  let uniqueAssignees: string[] = []
 
   const columnConfig: TaskTableColumnConfig = {
     showCheckbox: true,
@@ -19,13 +20,15 @@
     showProjectName: true,
     showDueDate: true,
     showCoordinator: true,
+    showAssignee: true,
     showAssignedTo: true,
     showUpdates: true,
     showTags: true,
     showWorkOrder: true,
     showArea: true,
     editTitle: true,
-    editStatus: true
+    editStatus: true,
+    editAssignee: true
   }
 
   onMount(() => {
@@ -80,22 +83,37 @@
   }
 
   function canBulkUpdate() {
-    return columnConfig.editStatus === true
+    return (
+      columnConfig.editStatus === true || columnConfig.editAssignee === true
+    )
   }
 
-  async function handleBulkStatusChange(event: Event) {
-    const select = event.currentTarget as HTMLSelectElement
-    const newStatus = select.value as TaskStatus
+  function getUpdatedUniqueAssignees() {
+    const assigness = new Set<string>(uniqueAssignees)
 
-    if (!newStatus) return
+    tasks.forEach((task) => {
+      if (task.assignedToName) {
+        assigness.add(task.assignedToName.trim())
+      }
+    })
 
+    uniqueAssignees = Array.from(assigness).sort()
+    return uniqueAssignees
+  }
+
+  async function handleBulkUpdate(field: 'status' | 'assignee', value: string) {
     const api = getMockAPI()
     isBatchUpdating = true
 
     try {
+      const updates: Partial<ListableTask> =
+        field === 'status'
+          ? { status: value as TaskStatus }
+          : { assignedToName: value || null }
+
       const updatedTasks = await api.updateTasksBatch(
         Array.from(selectedTaskIds),
-        { status: newStatus }
+        updates
       )
 
       tasks = tasks.map((t) => {
@@ -112,8 +130,23 @@
       }
     } finally {
       isBatchUpdating = false
+    }
+  }
+
+  function handleBulkStatusChange(event: Event) {
+    const select = event.currentTarget as HTMLSelectElement
+    const newStatus = select.value
+    if (newStatus) {
+      handleBulkUpdate('status', newStatus)
       select.value = ''
     }
+  }
+
+  function handleBulkAssigneeChange(event: Event) {
+    const select = event.currentTarget as HTMLSelectElement
+    const newAssignee = select.value
+    handleBulkUpdate('assignee', newAssignee)
+    select.value = ''
   }
 
   const isSelectColumnVisible = true
@@ -151,15 +184,23 @@
         </select>
       {/if}
 
+      {#if columnConfig.editAssignee === true}
+        <select on:change={handleBulkAssigneeChange} disabled={isBatchUpdating}>
+          <option value="">Change Assignee</option>
+          <option value="">Unassign</option>
+          {#each getUpdatedUniqueAssignees() as assignee (assignee)}
+            <option value={assignee}>{assignee}</option>
+          {/each}
+        </select>
+      {/if}
+
       <button on:click={clearSelection} disabled={isBatchUpdating}>
         Cancel
       </button>
 
       {#if isBatchUpdating}
         <span class="text-blue-500" role="alert" aria-live="polite">
-          Updating Status for selected task{selectedTaskIds.size === 1
-            ? ''
-            : 's'}...
+          Updating selected task{selectedTaskIds.size === 1 ? '' : 's'}...
         </span>
       {:else if errorMessage}
         <span class="text-red-600 text-xs" role="alert" aria-live="polite">
@@ -203,6 +244,9 @@
           {/if}
           {#if columnConfig.showCoordinator}
             <th style="min-width: 80px;">Coordinator</th>
+          {/if}
+          {#if columnConfig.showAssignee}
+            <th style="min-width: 120px;">Assignee</th>
           {/if}
           {#if columnConfig.showAssignedTo}
             <th style="min-width: 120px;">Assigned To</th>
